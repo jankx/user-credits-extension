@@ -1,0 +1,17 @@
+{
+    "name": "User Credits",
+    "version": "1.0.0",
+    "description": "Hệ thống ví tiền và tín dụng người dùng cho booking du lịch.",
+    "author": "Jankx",
+    "extension_id": "user-credits",
+    "context": ["admin", "frontend", "rest", "ajax"],
+    "caller": {
+        "file": "UserCreditsExtension.php",
+        "class": "Jankx\\Extensions\\UserCredits\\UserCreditsExtension",
+        "method": "init"
+    },
+    "requirements": {
+        "php": ">=7.4"
+    },
+    "auto_activate": true
+}

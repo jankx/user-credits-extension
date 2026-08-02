@@ -1,0 +1,77 @@
+/* Jankx User Credits - Admin Styles */
+
+.jankx-credit-wrap .form-table th {
+    width: 220px;
+}
+
+.jankx-credit-wrap .description {
+    color: #666;
+    font-style: italic;
+}
+
+/* Transaction column colors */
+.jankx-credit-topup,
+.jankx-credit-refund,
+.jankx-credit-commission {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+.jankx-credit-deduct,
+.jankx-credit-booking {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+/* Balance meta box */
+.jankx-credit-wrap h3 {
+    margin-top: 24px;
+    margin-bottom: 12px;
+}
+
+.jankx-credit-wrap .wp-list-table {
+    border: 1px solid #e2e4e7;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.jankx-credit-wrap .wp-list-table td {
+    vertical-align: middle;
+}
+
+/* Settings page cards */
+.jankx-credit-wrap .form-table tr {
+    background: #fff;
+}
+
+.jankx-credit-wrap .form-table tr:hover {
+    background: #FFFEF5;
+}
+
+/* Dashboard widget */
+.jankx-credit-balance-widget {
+    padding: 20px;
+}
+
+.jankx-credit-balance-widget .balance-amount {
+    font-size: 28px;
+    font-weight: 700;
+    color: #65A30D;
+    margin: 8px 0 16px;
+}
+
+.jankx-credit-balance-widget .balance-label {
+    color: #1A1F71;
+    font-size: 14px;
+}
+
+/* Quick action buttons */
+.jankx-credit-wrap .button-primary {
+    background: #65A30D;
+    border-color: #65A30D;
+}
+
+.jankx-credit-wrap .button-primary:hover {
+    background: #55890b;
+    border-color: #55890b;
+}
