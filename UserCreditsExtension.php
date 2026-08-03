@@ -58,9 +58,26 @@ class UserCreditsExtension extends AbstractExtension
         $rest = new CreditApiController();
         $rest->init();
 
+        // Register sub-page with My Account
+        add_action('jankx/my_account/register_sub_pages', [$this, 'registerAccountSubPage']);
+
         if (is_admin()) {
             $settingsPage = new SettingsPage();
             $settingsPage->register();
         }
+    }
+
+    /**
+     * Register credits sub-page with My Account
+     */
+    public function registerAccountSubPage(): void
+    {
+        \Jankx\Extensions\MyAccount\MyAccountExtension::registerSubPage('credits', [
+            'label' => 'Xu của bạn',
+            'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>',
+            'priority' => 30,
+            'extension' => 'user-credits',
+            'show_in_nav' => true,
+        ]);
     }
 }
