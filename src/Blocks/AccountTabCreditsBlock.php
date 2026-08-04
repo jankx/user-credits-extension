@@ -24,7 +24,9 @@ class AccountTabCreditsBlock extends Block
             $activeTab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'profile';
         }
 
-        if ($activeTab !== 'credits') {
+        $is_editor = defined('REST_REQUEST') && REST_REQUEST && !empty($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/block-renderer/') !== false;
+
+        if (!$is_editor && $activeTab !== 'credits') {
             return '';
         }
 
@@ -42,7 +44,7 @@ class AccountTabCreditsBlock extends Block
         // Balance card
         $output .= '<div class="jankx-credit-card">';
         $output .= '<div class="jankx-credit-label">Current Balance</div>';
-        $output .= '<div class="jankx-credit-amount">' . number_format((float)$balance, 0, ',', '.') . ' CREDITS</div>';
+        $output .= '<div class="jankx-credit-amount">' . number_format((float) $balance, 0, ',', '.') . ' CREDITS</div>';
         $output .= '</div>';
 
         // Transaction history
@@ -61,7 +63,7 @@ class AccountTabCreditsBlock extends Block
                 $output .= '<tr>';
                 $output .= '<td>' . esc_html(date('d/m/Y H:i', strtotime($item->date))) . '</td>';
                 $output .= '<td>' . esc_html($item->description) . '</td>';
-                $output .= '<td class="' . $amountClass . '">' . $amountPrefix . number_format((float)$item->amount, 0, ',', '.') . ' CREDITS</td>';
+                $output .= '<td class="' . $amountClass . '">' . $amountPrefix . number_format((float) $item->amount, 0, ',', '.') . ' CREDITS</td>';
                 $output .= '</tr>';
             }
             $output .= '</tbody></table>';
