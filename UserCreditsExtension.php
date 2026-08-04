@@ -61,12 +61,13 @@ class UserCreditsExtension extends AbstractExtension
         // Register sub-page with My Account
         add_action('jankx/my_account/register_sub_pages', [$this, 'registerAccountSubPage']);
 
+        // Always register blocks so ServerSideRender works in editor
+        $this->registerBlocks();
+
         if (is_admin()) {
             $settingsPage = new SettingsPage();
             $settingsPage->register();
         } else {
-            // Frontend: register blocks server-side for rendering
-            $this->registerBlocks();
             add_action('template_redirect', [$this, 'maybeRegisterFrontendBlocks']);
         }
     }
