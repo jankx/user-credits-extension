@@ -64,11 +64,9 @@ class UserCreditsExtension extends AbstractExtension
         if (is_admin()) {
             $settingsPage = new SettingsPage();
             $settingsPage->register();
-
-            // Register Gutenberg blocks
-            add_action('init', [$this, 'registerBlocks']);
         } else {
-            // Frontend: only register blocks on My Account page
+            // Frontend: register blocks server-side for rendering
+            $this->registerBlocks();
             add_action('template_redirect', [$this, 'maybeRegisterFrontendBlocks']);
         }
     }
@@ -83,8 +81,8 @@ class UserCreditsExtension extends AbstractExtension
             return;
         }
 
-        $blockPath = $blocksDir . '/account-tab-credits';
-        if (!is_dir($blockPath)) {
+        $blockPath = $blocksDir;
+        if (!file_exists($blockPath . '/block.json')) {
             return;
         }
 
