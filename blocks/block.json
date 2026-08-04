@@ -7,16 +7,13 @@
     "icon": "money-alt",
     "description": "Display user's credit balance and transaction history.",
     "textdomain": "jankx",
-    "parent": [
-        "jankx/my-account"
-    ],
-    "attributes": {},
-    "editorScript": "file:./build/index.js",
-    "supports": {
-        "html": false,
-        "spacing": {
-            "padding": true,
-            "margin": true
-        }
-    }
+    "parent": ["jankx/account-content"],
+    "attributes": {
+        "jankxHideOnUltrawide": { "type": "boolean", "default": false },
+        "jankxHideOnPc": { "type": "boolean", "default": false },
+        "jankxHideOnTablet": { "type": "boolean", "default": false },
+        "jankxHideOnMobile": { "type": "boolean", "default": false },
+        "jankxFlexGrow": { "type": "boolean", "default": false }
+    },
+    "supports": { "html": false }
 }
