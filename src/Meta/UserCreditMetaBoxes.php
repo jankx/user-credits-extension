@@ -130,7 +130,7 @@ class UserCreditMetaBoxes
     protected function getUserTransactions(int $userId, int $limit = 10): array
     {
         $args = [
-            'post_type'      => 'jankx_credit_transaction',
+            'post_type'      => 'jankx_credit_txn',
             'post_status'    => 'any',
             'posts_per_page' => $limit,
             'meta_query'     => [

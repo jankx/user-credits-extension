@@ -3,7 +3,7 @@ namespace Jankx\Extensions\UserCredits\PostTypes;
 
 class CreditTransactionPostType
 {
-    const POST_TYPE = 'jankx_credit_transaction';
+    const POST_TYPE = 'jankx_credit_txn';
 
     public function register(): void
     {
