@@ -15,16 +15,13 @@ class UserCreditMetaBoxes
 
     public function renderProfileMetaBox(\WP_User $user): void
     {
-        if (!current_user_can('manage_options')) {
-            return;
-        }
-
         $balance = get_user_meta($user->ID, self::BALANCE_META_KEY, true);
         if (!is_numeric($balance)) {
             $balance = 0;
         }
 
         $currency = get_option('jankx_credit_currency_symbol', 'đ');
+        $isAdmin = current_user_can('manage_options');
         ?>
         <h2><?php esc_html_e('Tín dụng người dùng', 'jankx'); ?></h2>
         <table class="form-table" role="presentation">
@@ -33,22 +30,27 @@ class UserCreditMetaBoxes
                     <label for="user_credits_balance"><?php esc_html_e('Số dư hiện tại', 'jankx'); ?></label>
                 </th>
                 <td>
-                    <input type="number"
-                           id="user_credits_balance"
-                           name="user_credits_balance"
-                           value="<?php echo esc_attr($balance); ?>"
-                           class="regular-text"
-                           step="1000"
-                           min="0">
-                    <span class="description">
-                        <?php
-                        printf(
-                            /* translators: %s: currency symbol */
-                            esc_html__('Đơn vị: %s', 'jankx'),
-                            esc_html($currency)
-                        );
-                        ?>
-                    </span>
+                    <?php if ($isAdmin): ?>
+                        <input type="number"
+                               id="user_credits_balance"
+                               name="user_credits_balance"
+                               value="<?php echo esc_attr($balance); ?>"
+                               class="regular-text"
+                               step="1000"
+                               min="0">
+                        <span class="description">
+                            <?php
+                            printf(
+                                /* translators: %s: currency symbol */
+                                esc_html__('Đơn vị: %s', 'jankx'),
+                                esc_html($currency)
+                            );
+                            ?>
+                        </span>
+                    <?php else: ?>
+                        <strong><?php echo number_format((float) $balance, 0, ',', '.'); ?></strong>
+                        <?php echo esc_html($currency); ?>
+                    <?php endif; ?>
                 </td>
             </tr>
         </table>
