@@ -15,7 +15,7 @@ class UserCreditMetaBoxes
 
     public function renderProfileMetaBox(\WP_User $user): void
     {
-        if (!current_user_can('edit_user', $user->ID)) {
+        if (!current_user_can('manage_options')) {
             return;
         }
 
