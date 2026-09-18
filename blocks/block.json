@@ -7,7 +7,6 @@
     "icon": "money-alt",
     "description": "Display user's credit balance and transaction history.",
     "textdomain": "jankx",
-    "parent": ["jankx/account-content"],
     "attributes": {
         "jankxHideOnUltrawide": { "type": "boolean", "default": false },
         "jankxHideOnPc": { "type": "boolean", "default": false },
