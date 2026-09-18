@@ -21,6 +21,7 @@ class OrderRewardIntegration
     const OPTION_ENABLED           = 'jankx_credit_reward_enabled';
     const OPTION_AMOUNT_PER_CREDIT = 'jankx_credit_reward_amount_per_credit';
     const OPTION_MIN_ORDER_TOTAL   = 'jankx_credit_reward_min_order_total';
+    const OPTION_WALLET            = 'jankx_credit_reward_wallet';
 
     const AWARDED_META_PREFIX = '_jankx_credit_reward_order_';
 
@@ -110,6 +111,15 @@ class OrderRewardIntegration
         return (float) max(0, (float) $this->getOption(self::OPTION_MIN_ORDER_TOTAL, 0));
     }
 
+    /**
+     * Wallet (credit type id) the reward is credited to.
+     * Empty string means the default wallet.
+     */
+    public function getWalletId(): string
+    {
+        return trim((string) $this->getOption(self::OPTION_WALLET, ''));
+    }
+
     /* ---------------------------------------------------------------------
      * Calculation
      * ------------------------------------------------------------------- */
@@ -183,9 +193,11 @@ class OrderRewardIntegration
                 CreditTransactionAction::REWARD,
                 $credits,
                 $note,
-                null,
+                $this->getWalletId() !== '' ? $this->getWalletId() : null,
                 $title
             );
+        } catch (\Jankx\Extensions\UserCredits\CreditType\CreditTypeNotFoundException $exception) {
+            return;
         } catch (\InvalidArgumentException $exception) {
             return;
         }

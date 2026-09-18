@@ -78,6 +78,11 @@ class SettingsPage
             'default'           => 0,
             'sanitize_callback' => [$this, 'sanitizeNonNegativeNumber'],
         ]);
+
+        register_setting(self::OPTION_GROUP, OrderRewardIntegration::OPTION_WALLET, [
+            'default'           => '',
+            'sanitize_callback' => 'sanitize_text_field',
+        ]);
     }
 
     public function sanitizeBoolean($value): string
@@ -268,6 +273,31 @@ class SettingsPage
                                    min="0">
                             <p class="description">
                                 <?php esc_html_e('Tổng giá trị đơn hàng tối thiểu (VND) mới được thưởng xu. Để 0 nếu không giới hạn.', 'jankx'); ?>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">
+                            <label for="<?php echo esc_attr(OrderRewardIntegration::OPTION_WALLET); ?>">
+                                <?php esc_html_e('Ví nhận xu', 'jankx'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <select id="<?php echo esc_attr(OrderRewardIntegration::OPTION_WALLET); ?>"
+                                    name="<?php echo esc_attr(OrderRewardIntegration::OPTION_WALLET); ?>">
+                                <option value="" <?php selected(get_option(OrderRewardIntegration::OPTION_WALLET, ''), ''); ?>>
+                                    <?php esc_html_e('Ví mặc định', 'jankx'); ?>
+                                </option>
+                                <?php foreach ($this->registry->all() as $type): ?>
+                                    <option value="<?php echo esc_attr($type->getId()); ?>"
+                                            <?php selected(get_option(OrderRewardIntegration::OPTION_WALLET, ''), $type->getId()); ?>>
+                                        <?php echo esc_html($type->getLabel() . ' (' . $type->getId() . ')'); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description">
+                                <?php esc_html_e('Ví sẽ nhận xu thưởng. Chọn "Ví mặc định" để dùng ví được cài làm mặc định.', 'jankx'); ?>
                             </p>
                         </td>
                     </tr>
