@@ -1,6 +1,7 @@
 <?php
 namespace Jankx\Extensions\UserCredits\Rest;
 
+use Jankx\Extensions\UserCredits\Integration\CheckoutIntegration;
 use Jankx\Extensions\UserCredits\Meta\UserCreditMetaBoxes;
 use Jankx\Extensions\UserCredits\PostTypes\CreditTransactionPostType;
 
@@ -88,6 +89,27 @@ class CreditApiController
                     },
                 ],
             ],
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/credits/cart/apply', [
+            'methods'             => 'POST',
+            'callback'            => [$this, 'applyCreditsToCart'],
+            'permission_callback' => [$this, 'checkUserPermission'],
+            'args'                => [
+                'use' => [
+                    'required'          => false,
+                    'default'           => true,
+                    'sanitize_callback' => function ($param) {
+                        return filter_var($param, FILTER_VALIDATE_BOOLEAN);
+                    },
+                ],
+            ],
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/credits/cart/remove', [
+            'methods'             => 'POST',
+            'callback'            => [$this, 'removeCreditsFromCart'],
+            'permission_callback' => [$this, 'checkUserPermission'],
         ]);
     }
 
@@ -252,5 +274,65 @@ class CreditApiController
             'transactions' => $transactions,
             'total'        => $query->found_posts,
         ]);
+    }
+
+    public function applyCreditsToCart(\WP_REST_Request $request): \WP_REST_Response
+    {
+        $use = $request->get_param('use');
+        if (is_string($use)) {
+            $use = filter_var($use, FILTER_VALIDATE_BOOLEAN);
+        }
+        $use = ($use === null) ? true : (bool) $use;
+
+        $result = CheckoutIntegration::get_instance()->apply($use);
+
+        if (empty($result['success'])) {
+            return new \WP_REST_Response($result, 400);
+        }
+
+        return rest_ensure_response($this->buildCreditPaymentResponse($result));
+    }
+
+    public function removeCreditsFromCart(\WP_REST_Request $request): \WP_REST_Response
+    {
+        $result = CheckoutIntegration::get_instance()->removeApplied();
+
+        return rest_ensure_response($this->buildCreditPaymentResponse($result));
+    }
+
+    protected function buildCreditPaymentResponse(array $result): array
+    {
+        $integration = CheckoutIntegration::get_instance();
+
+        $cartPayload = [];
+        $creditDiscount = 0.0;
+        $couponDiscount = 0.0;
+
+        if (class_exists('\Jankx\Extensions\Ecommerce\Cart\Cart')) {
+            $cart = \Jankx\Extensions\Ecommerce\Cart\Cart::get_instance();
+            $cartPayload = method_exists($cart, 'toArray') ? $cart->toArray() : [];
+            $creditDiscount = $integration->getAppliedCreditDiscount($cart);
+            $couponDiscount = max(0, (float) ($cartPayload['discount'] ?? 0) - $creditDiscount);
+        }
+
+        return array_merge($result, [
+            'applied'                    => $integration->isApplied(),
+            'balance'                    => $integration->getBalance(),
+            'credit_discount'            => $creditDiscount,
+            'coupon_discount'            => $couponDiscount,
+            'formatted_credit_discount'  => $this->formatPrice($creditDiscount),
+            'formatted_coupon_discount'  => $this->formatPrice($couponDiscount),
+            'cart'                       => $cartPayload,
+        ]);
+    }
+
+    protected function formatPrice(float $price): string
+    {
+        if (class_exists('\Jankx\Extensions\Ecommerce\Currency\Converters\CurrencyConverterManager')) {
+            return \Jankx\Extensions\Ecommerce\Currency\Converters\CurrencyConverterManager::getInstance()
+                ->formatPriceWithConversion($price);
+        }
+
+        return number_format($price, 0, ',', '.');
     }
 }

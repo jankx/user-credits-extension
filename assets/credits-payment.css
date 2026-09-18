@@ -1,0 +1,36 @@
+.jankx-credits-form {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border: 1px dashed var(--jankx-border-color, #e2e2e2);
+    border-radius: 8px;
+    background: var(--jankx-surface-color, #fafafa);
+}
+
+.jankx-credits-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.jankx-credits-toggle-label input[type="checkbox"] {
+    margin: 0;
+}
+
+.jankx-credits-balance {
+    margin: 8px 0 0;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.jankx-credits-message {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.85em;
+    color: #1a7f37;
+}
+
+.jankx-credits-message.is-error {
+    color: #b32d2e;
+}

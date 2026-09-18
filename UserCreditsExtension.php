@@ -6,6 +6,8 @@ use Jankx\Extensions\UserCredits\PostTypes\CreditTransactionPostType;
 use Jankx\Extensions\UserCredits\Meta\UserCreditMetaBoxes;
 use Jankx\Extensions\UserCredits\Rest\CreditApiController;
 use Jankx\Extensions\UserCredits\Admin\SettingsPage;
+use Jankx\Extensions\UserCredits\Admin\ThemeOptionsIntegration;
+use Jankx\Extensions\UserCredits\Integration\CheckoutIntegration;
 
 class UserCreditsExtension extends AbstractExtension
 {
@@ -58,8 +60,17 @@ class UserCreditsExtension extends AbstractExtension
         $rest = new CreditApiController();
         $rest->init();
 
+        // Allow paying for base-ecommerce orders with credits.
+        CheckoutIntegration::get_instance()->register();
+
+        // Inject the credits page into the Jankx theme options.
+        (new ThemeOptionsIntegration())->register();
+
         // Register sub-page with My Account
         add_action('jankx/my_account/register_sub_pages', [$this, 'registerAccountSubPage']);
+
+        // Frontend assets for the cart & checkout credit payment UI.
+        add_action('wp_enqueue_scripts', [$this, 'enqueuePaymentAssets']);
 
         // Always register blocks so ServerSideRender works in editor
         $this->registerBlocks();
@@ -70,6 +81,57 @@ class UserCreditsExtension extends AbstractExtension
         } else {
             add_action('template_redirect', [$this, 'maybeRegisterFrontendBlocks']);
         }
+    }
+
+    /**
+     * Cart & checkout assets for the credit payment toggle.
+     */
+    public function enqueuePaymentAssets(): void
+    {
+        if (!is_user_logged_in() || !class_exists('\Jankx\Extensions\Ecommerce\EcommerceExtension')) {
+            return;
+        }
+
+        $integration = CheckoutIntegration::get_instance();
+        if (!$integration->isEnabled() || $integration->getBalance() <= 0) {
+            return;
+        }
+
+        $cartPageId = \Jankx\Extensions\Ecommerce\EcommerceExtension::get_cart_page_id();
+        $checkoutPageId = \Jankx\Extensions\Ecommerce\EcommerceExtension::get_checkout_page_id();
+
+        $isCart = $cartPageId && is_page($cartPageId);
+        $isCheckout = $checkoutPageId && is_page($checkoutPageId);
+
+        if (!$isCart && !$isCheckout) {
+            return;
+        }
+
+        $url = $this->get_extension_url();
+        $path = $this->get_extension_path();
+
+        wp_enqueue_style(
+            'jankx-credits-payment',
+            $url . '/assets/credits-payment.css',
+            [],
+            filemtime($path . '/assets/credits-payment.css')
+        );
+
+        wp_enqueue_script(
+            'jankx-credits-payment',
+            $url . '/assets/credits-payment.js',
+            [],
+            filemtime($path . '/assets/credits-payment.js'),
+            true
+        );
+
+        wp_localize_script('jankx-credits-payment', 'jankxCreditsPayment', [
+            'restUrl' => esc_url_raw(rest_url(CreditApiController::NAMESPACE)),
+            'nonce'   => wp_create_nonce('wp_rest'),
+            'i18n'    => [
+                'error' => __('Đã xảy ra lỗi, vui lòng thử lại.', 'jankx'),
+            ],
+        ]);
     }
 
     /**
