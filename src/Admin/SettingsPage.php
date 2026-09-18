@@ -4,6 +4,7 @@ namespace Jankx\Extensions\UserCredits\Admin;
 use Jankx\Extensions\UserCredits\CreditType\CreditManager;
 use Jankx\Extensions\UserCredits\CreditType\CreditType;
 use Jankx\Extensions\UserCredits\CreditType\CreditTypeRegistryInterface;
+use Jankx\Extensions\UserCredits\Reward\OrderRewardIntegration;
 
 class SettingsPage
 {
@@ -62,11 +63,33 @@ class SettingsPage
             'default'           => 0,
             'sanitize_callback' => 'absint',
         ]);
+
+        register_setting(self::OPTION_GROUP, OrderRewardIntegration::OPTION_ENABLED, [
+            'default'           => 'no',
+            'sanitize_callback' => [$this, 'sanitizeBoolean'],
+        ]);
+
+        register_setting(self::OPTION_GROUP, OrderRewardIntegration::OPTION_AMOUNT_PER_CREDIT, [
+            'default'           => 10000,
+            'sanitize_callback' => [$this, 'sanitizeNonNegativeNumber'],
+        ]);
+
+        register_setting(self::OPTION_GROUP, OrderRewardIntegration::OPTION_MIN_ORDER_TOTAL, [
+            'default'           => 0,
+            'sanitize_callback' => [$this, 'sanitizeNonNegativeNumber'],
+        ]);
     }
 
     public function sanitizeBoolean($value): string
     {
         return in_array($value, ['yes', 'no'], true) ? $value : 'no';
+    }
+
+    public function sanitizeNonNegativeNumber($value): float
+    {
+        $number = is_numeric($value) ? (float) $value : 0.0;
+
+        return max(0, $number);
     }
 
     public function enqueueAssets(string $hook): void
@@ -174,6 +197,78 @@ class SettingsPage
                                    class="small-text"
                                    min="0">
                             <p class="description"><?php esc_html_e('Để 0 nếu tín dụng không hết hạn.', 'jankx'); ?></p>
+                        </td>
+                    </tr>
+                </table>
+
+                <?php submit_button(__('Lưu cài đặt', 'jankx')); ?>
+            </form>
+
+            <h2 style="margin-top: 32px;"><?php esc_html_e('Thưởng xu khi hoàn thành đơn hàng', 'jankx'); ?></h2>
+            <p class="description">
+                <?php esc_html_e('Hệ thống sẽ tự động thưởng xu cho khách hàng khi đơn hàng được ghi nhận qua checkout (bao gồm đơn do telesale tạo online).', 'jankx'); ?>
+            </p>
+
+            <form method="post" action="options.php" style="max-width: 700px; margin-top: 20px;">
+                <?php settings_fields(self::OPTION_GROUP); ?>
+
+                <table class="form-table">
+                    <tr>
+                        <th scope="row">
+                            <label for="<?php echo esc_attr(OrderRewardIntegration::OPTION_ENABLED); ?>">
+                                <?php esc_html_e('Bật thưởng xu', 'jankx'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <select id="<?php echo esc_attr(OrderRewardIntegration::OPTION_ENABLED); ?>"
+                                    name="<?php echo esc_attr(OrderRewardIntegration::OPTION_ENABLED); ?>">
+                                <option value="yes" <?php selected(get_option(OrderRewardIntegration::OPTION_ENABLED, 'no'), 'yes'); ?>>
+                                    <?php esc_html_e('Bật', 'jankx'); ?>
+                                </option>
+                                <option value="no" <?php selected(get_option(OrderRewardIntegration::OPTION_ENABLED, 'no'), 'no'); ?>>
+                                    <?php esc_html_e('Tắt', 'jankx'); ?>
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">
+                            <label for="<?php echo esc_attr(OrderRewardIntegration::OPTION_AMOUNT_PER_CREDIT); ?>">
+                                <?php esc_html_e('Tỷ lệ chuyển đổi', 'jankx'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input type="number"
+                                   id="<?php echo esc_attr(OrderRewardIntegration::OPTION_AMOUNT_PER_CREDIT); ?>"
+                                   name="<?php echo esc_attr(OrderRewardIntegration::OPTION_AMOUNT_PER_CREDIT); ?>"
+                                   value="<?php echo esc_attr(get_option(OrderRewardIntegration::OPTION_AMOUNT_PER_CREDIT, 10000)); ?>"
+                                   class="regular-text"
+                                   step="100"
+                                   min="0">
+                            <p class="description">
+                                <?php esc_html_e('Số tiền (VND) giá trị đơn hàng tương ứng với 1 xu. VD: nhập 10.000 → mỗi 10.000đ đơn hàng khách nhận 1 xu (làm tròn xuống).', 'jankx'); ?>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">
+                            <label for="<?php echo esc_attr(OrderRewardIntegration::OPTION_MIN_ORDER_TOTAL); ?>">
+                                <?php esc_html_e('Đơn hàng tối thiểu', 'jankx'); ?>
+                            </label>
+                        </th>
+                        <td>
+                            <input type="number"
+                                   id="<?php echo esc_attr(OrderRewardIntegration::OPTION_MIN_ORDER_TOTAL); ?>"
+                                   name="<?php echo esc_attr(OrderRewardIntegration::OPTION_MIN_ORDER_TOTAL); ?>"
+                                   value="<?php echo esc_attr(get_option(OrderRewardIntegration::OPTION_MIN_ORDER_TOTAL, 0)); ?>"
+                                   class="regular-text"
+                                   step="1000"
+                                   min="0">
+                            <p class="description">
+                                <?php esc_html_e('Tổng giá trị đơn hàng tối thiểu (VND) mới được thưởng xu. Để 0 nếu không giới hạn.', 'jankx'); ?>
+                            </p>
                         </td>
                     </tr>
                 </table>

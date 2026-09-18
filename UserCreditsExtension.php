@@ -9,6 +9,7 @@ use Jankx\Extensions\UserCredits\Integration\CheckoutIntegration;
 use Jankx\Extensions\UserCredits\Meta\UserCreditMetaBoxes;
 use Jankx\Extensions\UserCredits\PostTypes\CreditTransactionPostType;
 use Jankx\Extensions\UserCredits\Rest\CreditApiController;
+use Jankx\Extensions\UserCredits\Reward\OrderRewardIntegration;
 
 class UserCreditsExtension extends AbstractExtension
 {
@@ -65,6 +66,9 @@ class UserCreditsExtension extends AbstractExtension
 
         // Allow paying for base-ecommerce orders with credits.
         CheckoutIntegration::get_instance($manager->account())->register();
+
+        // Automatically reward credits when an order is recorded via checkout.
+        OrderRewardIntegration::get_instance($manager->account())->register();
 
         // Inject the credits page into the Jankx theme options.
         (new ThemeOptionsIntegration())->register();

@@ -9,6 +9,7 @@ final class CreditTransactionAction
     public const REFUND = 'refund';
     public const BOOKING = 'booking';
     public const COMMISSION = 'commission';
+    public const REWARD = 'reward';
 
     private function __construct()
     {
@@ -22,6 +23,7 @@ final class CreditTransactionAction
             self::REFUND,
             self::BOOKING,
             self::COMMISSION,
+            self::REWARD,
         ];
     }
 
@@ -36,6 +38,7 @@ final class CreditTransactionAction
             self::TOPUP,
             self::REFUND,
             self::COMMISSION,
+            self::REWARD,
         ];
     }
 
@@ -57,6 +60,7 @@ final class CreditTransactionAction
             self::REFUND => __('Hoàn tiền', 'jankx'),
             self::BOOKING => __('Thanh toán booking', 'jankx'),
             self::COMMISSION => __('Hoa hồng', 'jankx'),
+            self::REWARD => __('Xu thưởng', 'jankx'),
         ];
     }
 
