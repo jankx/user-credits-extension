@@ -1,9 +1,24 @@
 <?php
 namespace Jankx\Extensions\UserCredits\Meta;
 
+use Jankx\Extensions\UserCredits\Credit\CreditAccount;
+use Jankx\Extensions\UserCredits\Credit\CreditTransaction;
+use Jankx\Extensions\UserCredits\CreditType\CreditType;
+use Jankx\Extensions\UserCredits\CreditType\CreditTypeRegistryInterface;
+
 class UserCreditMetaBoxes
 {
-    const BALANCE_META_KEY = 'user_credits_balance';
+    const BALANCE_META_KEY = CreditType::LEGACY_META_KEY;
+
+    protected CreditAccount $account;
+
+    protected CreditTypeRegistryInterface $registry;
+
+    public function __construct(CreditAccount $account, CreditTypeRegistryInterface $registry)
+    {
+        $this->account = $account;
+        $this->registry = $registry;
+    }
 
     public function register(): void
     {
@@ -15,49 +30,48 @@ class UserCreditMetaBoxes
 
     public function renderProfileMetaBox(\WP_User $user): void
     {
-        $balance = get_user_meta($user->ID, self::BALANCE_META_KEY, true);
-        if (!is_numeric($balance)) {
-            $balance = 0;
-        }
-
-        $currency = get_option('jankx_credit_currency_symbol', 'đ');
         $isAdmin = current_user_can('manage_options');
         ?>
         <h2><?php esc_html_e('Tín dụng người dùng', 'jankx'); ?></h2>
+        <?php wp_nonce_field('save_user_credits_balance_' . $user->ID, 'user_credits_balance_nonce'); ?>
         <table class="form-table" role="presentation">
-            <tr>
-                <th>
-                    <label for="user_credits_balance"><?php esc_html_e('Số dư hiện tại', 'jankx'); ?></label>
-                </th>
-                <td>
-                    <?php if ($isAdmin): ?>
-                        <input type="number"
-                               id="user_credits_balance"
-                               name="user_credits_balance"
-                               value="<?php echo esc_attr($balance); ?>"
-                               class="regular-text"
-                               step="1000"
-                               min="0">
-                        <span class="description">
-                            <?php
-                            printf(
-                                /* translators: %s: currency symbol */
-                                esc_html__('Đơn vị: %s', 'jankx'),
-                                esc_html($currency)
-                            );
-                            ?>
-                        </span>
-                    <?php else: ?>
-                        <strong><?php echo number_format((float) $balance, 0, ',', '.'); ?></strong>
-                        <?php echo esc_html($currency); ?>
-                    <?php endif; ?>
-                </td>
-            </tr>
+            <?php foreach ($this->registry->all() as $type): ?>
+                <?php $balance = $this->account->getBalance($user->ID, $type->getId()); ?>
+                <tr>
+                    <th>
+                        <label for="user_credits_balance_<?php echo esc_attr($type->getId()); ?>">
+                            <?php echo esc_html($type->getLabel()); ?>
+                        </label>
+                    </th>
+                    <td>
+                        <?php if ($isAdmin): ?>
+                            <input type="number"
+                                   id="user_credits_balance_<?php echo esc_attr($type->getId()); ?>"
+                                   name="user_credits_balance[<?php echo esc_attr($type->getId()); ?>]"
+                                   value="<?php echo esc_attr($balance); ?>"
+                                   class="regular-text"
+                                   step="1"
+                                   min="0">
+                            <span class="description">
+                                <?php
+                                printf(
+                                    /* translators: %s: credit unit symbol */
+                                    esc_html__('Đơn vị: %s', 'jankx'),
+                                    esc_html($type->getSymbol())
+                                );
+                                ?>
+                            </span>
+                        <?php else: ?>
+                            <strong><?php echo esc_html($type->format($balance)); ?></strong>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
         </table>
 
         <h3><?php esc_html_e('Lịch sử giao dịch gần đây', 'jankx'); ?></h3>
         <?php
-        $transactions = $this->getUserTransactions($user->ID);
+        $transactions = $this->account->getTransactions($user->ID, 10);
         if (empty($transactions)) {
             echo '<p>' . esc_html__('Chưa có giao dịch nào.', 'jankx') . '</p>';
             return;
@@ -73,34 +87,22 @@ class UserCreditMetaBoxes
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($transactions as $transaction) :
-                    $type = get_post_meta($transaction->ID, '_credit_type', true);
-                    $amount = get_post_meta($transaction->ID, '_credit_amount', true);
-                    $balanceAfter = get_post_meta($transaction->ID, '_credit_balance_after', true);
-                    $types = [
-                        'topup'     => __('Nạp tiền', 'jankx'),
-                        'deduct'    => __('Trừ tiền', 'jankx'),
-                        'refund'    => __('Hoàn tiền', 'jankx'),
-                        'booking'   => __('Thanh toán booking', 'jankx'),
-                        'commission' => __('Hoa hồng', 'jankx'),
-                    ];
-                    $prefix = in_array($type, ['topup', 'refund', 'commission']) ? '+' : '-';
-                ?>
+                <?php foreach ($transactions as $transaction): ?>
                     <tr>
-                        <td><?php echo esc_html(date('d/m/Y H:i', strtotime($transaction->post_date))); ?></td>
-                        <td><?php echo esc_html($types[$type] ?? $type); ?></td>
+                        <td><?php echo esc_html(date('d/m/Y H:i', strtotime($transaction->getDate()))); ?></td>
+                        <td><?php echo esc_html($this->describe($transaction)); ?></td>
                         <td>
-                            <span class="jankx-credit-<?php echo esc_attr($type); ?>">
+                            <span class="jankx-credit-<?php echo esc_attr($transaction->getAction()); ?>">
                                 <?php
                                 printf(
                                     '%s%s',
-                                    esc_html($prefix),
-                                    esc_html(number_format((float) $amount, 0, ',', '.'))
+                                    esc_html($transaction->getSignedAmount() >= 0 ? '+' : '-'),
+                                    esc_html($this->formatAmount($transaction))
                                 );
                                 ?>
                             </span>
                         </td>
-                        <td><?php echo esc_html(number_format((float) $balanceAfter, 0, ',', '.')); ?></td>
+                        <td><?php echo esc_html($this->formatBalance($transaction)); ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -122,30 +124,48 @@ class UserCreditMetaBoxes
             return;
         }
 
-        $newBalance = isset($_POST['user_credits_balance'])
-            ? sanitize_text_field($_POST['user_credits_balance'])
-            : 0;
+        $posted = isset($_POST['user_credits_balance']) && is_array($_POST['user_credits_balance'])
+            ? wp_unslash($_POST['user_credits_balance'])
+            : [];
 
-        update_user_meta($userId, self::BALANCE_META_KEY, (float) $newBalance);
+        foreach ($this->registry->all() as $type) {
+            if (!array_key_exists($type->getId(), $posted)) {
+                continue;
+            }
+
+            $value = sanitize_text_field((string) $posted[$type->getId()]);
+
+            $this->account->setBalance($userId, is_numeric($value) ? (float) $value : 0.0, $type->getId());
+        }
     }
 
-    protected function getUserTransactions(int $userId, int $limit = 10): array
+    protected function resolveType(string $typeId): ?CreditType
     {
-        $args = [
-            'post_type'      => 'jankx_credit_txn',
-            'post_status'    => 'any',
-            'posts_per_page' => $limit,
-            'meta_query'     => [
-                [
-                    'key'   => '_credit_user_id',
-                    'value' => $userId,
-                    'compare' => '=',
-                ],
-            ],
-            'orderby'        => 'date',
-            'order'          => 'DESC',
-        ];
+        return $this->registry->has($typeId) ? $this->registry->get($typeId) : null;
+    }
 
-        return get_posts($args);
+    protected function describe(CreditTransaction $transaction): string
+    {
+        $type = $this->resolveType($transaction->getWalletId());
+
+        return $type
+            ? sprintf('%s (%s)', $transaction->getActionLabel(), $type->getLabel())
+            : $transaction->getActionLabel();
+    }
+
+    protected function formatAmount(CreditTransaction $transaction): string
+    {
+        $type = $this->resolveType($transaction->getWalletId());
+
+        return $type ? $type->format($transaction->getAmount()) : number_format($transaction->getAmount(), 0, ',', '.');
+    }
+
+    protected function formatBalance(CreditTransaction $transaction): string
+    {
+        $type = $this->resolveType($transaction->getWalletId());
+
+        return $type
+            ? $type->format($transaction->getBalanceAfter())
+            : number_format($transaction->getBalanceAfter(), 0, ',', '.');
     }
 }

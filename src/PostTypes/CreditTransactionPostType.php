@@ -1,9 +1,21 @@
 <?php
 namespace Jankx\Extensions\UserCredits\PostTypes;
 
+use Jankx\Extensions\UserCredits\Credit\CreditTransactionAction;
+use Jankx\Extensions\UserCredits\Credit\PostTypeCreditTransactionRepository as Repository;
+use Jankx\Extensions\UserCredits\CreditType\CreditManager;
+use Jankx\Extensions\UserCredits\CreditType\CreditTypeRegistryInterface;
+
 class CreditTransactionPostType
 {
     const POST_TYPE = 'jankx_credit_txn';
+
+    protected CreditTypeRegistryInterface $registry;
+
+    public function __construct(?CreditTypeRegistryInterface $registry = null)
+    {
+        $this->registry = $registry ?? CreditManager::instance()->registry();
+    }
 
     public function register(): void
     {
@@ -51,6 +63,7 @@ class CreditTransactionPostType
         $newColumns['cb'] = $columns['cb'];
         $newColumns['title'] = $columns['title'];
         $newColumns['transaction_type'] = __('Loại giao dịch', 'jankx');
+        $newColumns['credit_wallet'] = __('Loại tín dụng', 'jankx');
         $newColumns['amount'] = __('Số tiền', 'jankx');
         $newColumns['balance_after'] = __('Số dư sau', 'jankx');
         $newColumns['user'] = __('Người dùng', 'jankx');
@@ -63,38 +76,40 @@ class CreditTransactionPostType
     {
         switch ($column) {
             case 'transaction_type':
-                $type = get_post_meta($postId, '_credit_type', true);
-                $types = [
-                    'topup'     => __('Nạp tiền', 'jankx'),
-                    'deduct'    => __('Trừ tiền', 'jankx'),
-                    'refund'    => __('Hoàn tiền', 'jankx'),
-                    'booking'   => __('Thanh toán booking', 'jankx'),
-                    'commission' => __('Hoa hồng', 'jankx'),
-                ];
-                echo esc_html($types[$type] ?? $type);
+                $action = (string) get_post_meta($postId, Repository::META_ACTION, true);
+                echo esc_html(CreditTransactionAction::label($action));
+                break;
+
+            case 'credit_wallet':
+                $walletId = (string) get_post_meta($postId, Repository::META_WALLET, true);
+                if ($walletId !== '' && $this->registry->has($walletId)) {
+                    echo esc_html($this->registry->get($walletId)->getLabel());
+                } else {
+                    echo esc_html($walletId);
+                }
                 break;
 
             case 'amount':
-                $amount = get_post_meta($postId, '_credit_amount', true);
-                $type = get_post_meta($postId, '_credit_type', true);
-                $prefix = in_array($type, ['topup', 'refund', 'commission']) ? '+' : '-';
+                $amount = (float) get_post_meta($postId, Repository::META_AMOUNT, true);
+                $action = (string) get_post_meta($postId, Repository::META_ACTION, true);
+                $prefix = CreditTransactionAction::isCredit($action) ? '+' : '-';
                 printf(
                     '<span class="jankx-credit-amount jankx-credit-%s">%s%s</span>',
-                    esc_attr($type),
+                    esc_attr($action),
                     esc_html($prefix),
-                    esc_html(number_format((float) $amount, 0, ',', '.'))
+                    esc_html(number_format($amount, 0, ',', '.'))
                 );
                 break;
 
             case 'balance_after':
-                $balance = get_post_meta($postId, '_credit_balance_after', true);
-                echo esc_html(number_format((float) $balance, 0, ',', '.'));
+                $balance = (float) get_post_meta($postId, Repository::META_BALANCE_AFTER, true);
+                echo esc_html(number_format($balance, 0, ',', '.'));
                 break;
 
             case 'user':
-                $userId = get_post_meta($postId, '_credit_user_id', true);
+                $userId = (int) get_post_meta($postId, Repository::META_USER, true);
                 if ($userId) {
-                    $user = get_userdata((int) $userId);
+                    $user = get_userdata($userId);
                     if ($user) {
                         printf(
                             '<a href="%s">%s</a>',

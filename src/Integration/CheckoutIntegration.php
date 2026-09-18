@@ -1,8 +1,10 @@
 <?php
 namespace Jankx\Extensions\UserCredits\Integration;
 
-use Jankx\Extensions\UserCredits\Meta\UserCreditMetaBoxes;
-use Jankx\Extensions\UserCredits\PostTypes\CreditTransactionPostType;
+use Jankx\Extensions\UserCredits\Credit\CreditAccount;
+use Jankx\Extensions\UserCredits\Credit\InsufficientCreditBalanceException;
+use Jankx\Extensions\UserCredits\CreditType\CreditManager;
+use Jankx\Extensions\UserCredits\CreditType\CreditType;
 
 /**
  * Bridges the user credits wallet into the base-ecommerce cart & checkout flow:
@@ -32,13 +34,36 @@ class CheckoutIntegration
      */
     protected static $instance;
 
-    public static function get_instance(): self
+    protected ?CreditAccount $account = null;
+
+    public function __construct(?CreditAccount $account = null)
+    {
+        $this->account = $account;
+    }
+
+    public static function get_instance(?CreditAccount $account = null): self
     {
         if (!self::$instance) {
-            self::$instance = new self();
+            self::$instance = new self($account);
+        } elseif ($account !== null) {
+            self::$instance->account = $account;
         }
 
         return self::$instance;
+    }
+
+    protected function account(): CreditAccount
+    {
+        if ($this->account === null) {
+            $this->account = CreditManager::instance()->account();
+        }
+
+        return $this->account;
+    }
+
+    public function getCreditType(): CreditType
+    {
+        return $this->account()->resolveType();
     }
 
     public function register(): void
@@ -172,9 +197,7 @@ class CheckoutIntegration
             return 0.0;
         }
 
-        $balance = get_user_meta($userId, UserCreditMetaBoxes::BALANCE_META_KEY, true);
-
-        return is_numeric($balance) ? (float) $balance : 0.0;
+        return $this->account()->getBalance($userId);
     }
 
     /* ---------------------------------------------------------------------
@@ -281,28 +304,21 @@ class CheckoutIntegration
             return;
         }
 
-        $newBalance = $balance - $deduct;
-        update_user_meta($userId, UserCreditMetaBoxes::BALANCE_META_KEY, $newBalance);
-
         $orderNumber = (is_object($order) && method_exists($order, 'getOrderNumber'))
             ? (string) $order->getOrderNumber()
             : '';
 
-        wp_insert_post([
-            'post_type'   => CreditTransactionPostType::POST_TYPE,
-            'post_status' => 'publish',
-            'post_title'  => $orderNumber
-                ? sprintf(__('Thanh toán đơn hàng %s bằng tín dụng', 'jankx'), $orderNumber)
-                : __('Thanh toán đơn hàng bằng tín dụng', 'jankx'),
-            'meta_input'  => [
-                '_credit_type'          => 'deduct',
-                '_credit_amount'        => $deduct,
-                '_credit_balance_after' => $newBalance,
-                '_credit_user_id'       => $userId,
-                '_credit_note'          => $orderNumber ? sprintf(__('Đơn hàng %s', 'jankx'), $orderNumber) : '',
-            ],
-        ]);
+        $note = $orderNumber ? sprintf(__('Đơn hàng %s', 'jankx'), $orderNumber) : '';
+        $title = $orderNumber
+            ? sprintf(__('Thanh toán đơn hàng %s bằng tín dụng', 'jankx'), $orderNumber)
+            : __('Thanh toán đơn hàng bằng tín dụng', 'jankx');
 
-        do_action('jankx/ecommerce/credits/used', $order, $deduct, $userId, $newBalance);
+        try {
+            $transaction = $this->account()->withdraw($userId, $deduct, $note, null, $title);
+        } catch (InsufficientCreditBalanceException $exception) {
+            return;
+        }
+
+        do_action('jankx/ecommerce/credits/used', $order, $deduct, $userId, $transaction->getBalanceAfter());
     }
 }

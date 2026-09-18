@@ -8,6 +8,7 @@
 namespace Jankx\Extensions\UserCredits\Blocks;
 
 use Jankx\Extensions\UserCredits\Block;
+use Jankx\Extensions\UserCredits\CreditType\CreditManager;
 
 class AccountTabCreditsBlock extends Block
 {
@@ -30,40 +31,42 @@ class AccountTabCreditsBlock extends Block
             return '';
         }
 
+        $account = CreditManager::instance()->account();
+        $type = $account->resolveType();
         $user = wp_get_current_user();
-        $balance = $this->getUserCredits($user->ID);
-        $history = $this->getCreditHistory($user->ID);
+        $balance = $account->getBalance($user->ID);
+        $history = $account->getTransactions($user->ID, 20);
 
         $wrapperAttrs = get_block_wrapper_attributes([
             'class' => 'jankx-tab-panel jankx-tab-credits',
         ]);
 
         $output = sprintf('<div %s>', $wrapperAttrs);
-        $output .= '<h2 class="jankx-section-title">Your Credits</h2>';
+        $output .= '<h2 class="jankx-section-title">' . esc_html($type->getLabel()) . '</h2>';
 
-        // Balance card
         $output .= '<div class="jankx-credit-card">';
-        $output .= '<div class="jankx-credit-label">Current Balance</div>';
-        $output .= '<div class="jankx-credit-amount">' . number_format((float) $balance, 0, ',', '.') . ' CREDITS</div>';
+        $output .= '<div class="jankx-credit-label">' . esc_html__('Số dư hiện tại', 'jankx') . '</div>';
+        $output .= '<div class="jankx-credit-amount">' . esc_html($type->format($balance)) . '</div>';
         $output .= '</div>';
 
-        // Transaction history
         $output .= '<div class="jankx-credit-history">';
-        $output .= '<h3>Transaction History</h3>';
+        $output .= '<h3>' . esc_html__('Lịch sử giao dịch', 'jankx') . '</h3>';
 
         if (empty($history)) {
-            $output .= '<p class="text-muted">No transactions yet.</p>';
+            $output .= '<p class="text-muted">' . esc_html__('Chưa có giao dịch nào.', 'jankx') . '</p>';
         } else {
             $output .= '<table class="jankx-table">';
-            $output .= '<thead><tr><th>Date</th><th>Description</th><th>Amount</th></tr></thead>';
+            $output .= '<thead><tr><th>' . esc_html__('Ngày', 'jankx') . '</th><th>' . esc_html__('Mô tả', 'jankx') . '</th><th>' . esc_html__('Số tiền', 'jankx') . '</th></tr></thead>';
             $output .= '<tbody>';
             foreach ($history as $item) {
-                $amountClass = $item->amount > 0 ? 'text-success' : 'text-danger';
-                $amountPrefix = $item->amount > 0 ? '+' : '';
+                $signed = $item->getSignedAmount();
+                $amountClass = $signed >= 0 ? 'text-success' : 'text-danger';
+                $amountPrefix = $signed >= 0 ? '+' : '-';
+                $description = $item->getNote() !== '' ? $item->getNote() : ($item->getTitle() !== '' ? $item->getTitle() : $item->getActionLabel());
                 $output .= '<tr>';
-                $output .= '<td>' . esc_html(date('d/m/Y H:i', strtotime($item->date))) . '</td>';
-                $output .= '<td>' . esc_html($item->description) . '</td>';
-                $output .= '<td class="' . $amountClass . '">' . $amountPrefix . number_format((float) $item->amount, 0, ',', '.') . ' CREDITS</td>';
+                $output .= '<td>' . esc_html(date('d/m/Y H:i', strtotime($item->getDate()))) . '</td>';
+                $output .= '<td>' . esc_html($description) . '</td>';
+                $output .= '<td class="' . esc_attr($amountClass) . '">' . esc_html($amountPrefix . $type->format($item->getAmount())) . '</td>';
                 $output .= '</tr>';
             }
             $output .= '</tbody></table>';
@@ -73,15 +76,5 @@ class AccountTabCreditsBlock extends Block
         $output .= '</div>';
 
         return $output;
-    }
-
-    protected function getUserCredits(int $userId): float
-    {
-        return (float) get_user_meta($userId, 'jankx_credits', true) ?: 0;
-    }
-
-    protected function getCreditHistory(int $userId): array
-    {
-        return get_user_meta($userId, 'jankx_credit_history', true) ?: [];
     }
 }

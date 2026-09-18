@@ -2,12 +2,13 @@
 namespace Jankx\Extensions\UserCredits;
 
 use Jankx\Extensions\AbstractExtension;
-use Jankx\Extensions\UserCredits\PostTypes\CreditTransactionPostType;
-use Jankx\Extensions\UserCredits\Meta\UserCreditMetaBoxes;
-use Jankx\Extensions\UserCredits\Rest\CreditApiController;
 use Jankx\Extensions\UserCredits\Admin\SettingsPage;
 use Jankx\Extensions\UserCredits\Admin\ThemeOptionsIntegration;
+use Jankx\Extensions\UserCredits\CreditType\CreditManager;
 use Jankx\Extensions\UserCredits\Integration\CheckoutIntegration;
+use Jankx\Extensions\UserCredits\Meta\UserCreditMetaBoxes;
+use Jankx\Extensions\UserCredits\PostTypes\CreditTransactionPostType;
+use Jankx\Extensions\UserCredits\Rest\CreditApiController;
 
 class UserCreditsExtension extends AbstractExtension
 {
@@ -51,20 +52,29 @@ class UserCreditsExtension extends AbstractExtension
 
     public function register_hooks(): void
     {
-        $postTypes = new CreditTransactionPostType();
+        $manager = CreditManager::instance();
+
+        $postTypes = new CreditTransactionPostType($manager->registry());
         $postTypes->register();
 
-        $meta = new UserCreditMetaBoxes();
+        $meta = new UserCreditMetaBoxes($manager->account(), $manager->registry());
         $meta->register();
 
-        $rest = new CreditApiController();
+        $rest = new CreditApiController($manager->account());
         $rest->init();
 
         // Allow paying for base-ecommerce orders with credits.
-        CheckoutIntegration::get_instance()->register();
+        CheckoutIntegration::get_instance($manager->account())->register();
 
         // Inject the credits page into the Jankx theme options.
         (new ThemeOptionsIntegration())->register();
+
+        // Let third-party extensions register their own credit types.
+        if (did_action('init')) {
+            $manager->boot();
+        } else {
+            add_action('init', [$manager, 'boot'], 99);
+        }
 
         // Register sub-page with My Account
         add_action('jankx/my_account/register_sub_pages', [$this, 'registerAccountSubPage']);
@@ -76,7 +86,7 @@ class UserCreditsExtension extends AbstractExtension
         $this->registerBlocks();
 
         if (is_admin()) {
-            $settingsPage = new SettingsPage();
+            $settingsPage = new SettingsPage($manager->registry());
             $settingsPage->register();
         } else {
             add_action('template_redirect', [$this, 'maybeRegisterFrontendBlocks']);

@@ -1,10 +1,21 @@
 <?php
 namespace Jankx\Extensions\UserCredits\Admin;
 
+use Jankx\Extensions\UserCredits\CreditType\CreditManager;
+use Jankx\Extensions\UserCredits\CreditType\CreditType;
+use Jankx\Extensions\UserCredits\CreditType\CreditTypeRegistryInterface;
+
 class SettingsPage
 {
     const PAGE_SLUG = 'jankx-credit-settings';
     const OPTION_GROUP = 'jankx_credit_settings';
+
+    protected CreditTypeRegistryInterface $registry;
+
+    public function __construct(?CreditTypeRegistryInterface $registry = null)
+    {
+        $this->registry = $registry ?? CreditManager::instance()->registry();
+    }
 
     public function register(): void
     {
@@ -33,7 +44,7 @@ class SettingsPage
         ]);
 
         register_setting(self::OPTION_GROUP, 'jankx_credit_currency_symbol', [
-            'default'           => 'đ',
+            'default'           => 'coin',
             'sanitize_callback' => 'sanitize_text_field',
         ]);
 
@@ -113,9 +124,9 @@ class SettingsPage
                             <input type="text"
                                    id="jankx_credit_currency_symbol"
                                    name="jankx_credit_currency_symbol"
-                                   value="<?php echo esc_attr(get_option('jankx_credit_currency_symbol', 'đ')); ?>"
+                                   value="<?php echo esc_attr(get_option('jankx_credit_currency_symbol', 'coin')); ?>"
                                    class="small-text"
-                                   placeholder="đ">
+                                   placeholder="coin">
                         </td>
                     </tr>
 
@@ -169,6 +180,36 @@ class SettingsPage
 
                 <?php submit_button(__('Lưu cài đặt', 'jankx')); ?>
             </form>
+
+            <h2 style="margin-top: 32px;"><?php esc_html_e('Loại tín dụng đã đăng ký', 'jankx'); ?></h2>
+            <p class="description">
+                <?php esc_html_e('Các loại tín dụng có thể được mở rộng bởi extension khác thông qua hook jankx/user-credits/register_credit_types.', 'jankx'); ?>
+            </p>
+            <table class="wp-list-table widefat fixed striped" style="max-width: 900px;">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e('Mã', 'jankx'); ?></th>
+                        <th><?php esc_html_e('Tên', 'jankx'); ?></th>
+                        <th><?php esc_html_e('Ký hiệu', 'jankx'); ?></th>
+                        <th><?php esc_html_e('Meta key', 'jankx'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($this->registry->all() as $type): ?>
+                        <tr>
+                            <td><code><?php echo esc_html($type->getId()); ?></code></td>
+                            <td>
+                                <?php echo esc_html($type->getLabel()); ?>
+                                <?php if ($type->is(CreditType::DEFAULT_ID)): ?>
+                                    <strong>(<?php esc_html_e('mặc định', 'jankx'); ?>)</strong>
+                                <?php endif; ?>
+                            </td>
+                            <td><?php echo esc_html($type->getSymbol()); ?></td>
+                            <td><code><?php echo esc_html($type->getMetaKey()); ?></code></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
         <?php
     }

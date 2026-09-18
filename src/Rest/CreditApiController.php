@@ -1,13 +1,23 @@
 <?php
 namespace Jankx\Extensions\UserCredits\Rest;
 
+use InvalidArgumentException;
+use Jankx\Extensions\UserCredits\Credit\CreditAccount;
+use Jankx\Extensions\UserCredits\Credit\InsufficientCreditBalanceException;
+use Jankx\Extensions\UserCredits\CreditType\CreditManager;
+use Jankx\Extensions\UserCredits\CreditType\CreditType;
 use Jankx\Extensions\UserCredits\Integration\CheckoutIntegration;
-use Jankx\Extensions\UserCredits\Meta\UserCreditMetaBoxes;
-use Jankx\Extensions\UserCredits\PostTypes\CreditTransactionPostType;
 
 class CreditApiController
 {
     const NAMESPACE = 'jankx/v1';
+
+    protected CreditAccount $account;
+
+    public function __construct(CreditAccount $account)
+    {
+        $this->account = $account;
+    }
 
     public function init(): void
     {
@@ -20,6 +30,9 @@ class CreditApiController
             'methods'             => 'GET',
             'callback'            => [$this, 'getBalance'],
             'permission_callback' => [$this, 'checkUserPermission'],
+            'args'                => [
+                'type' => $this->getTypeArg(),
+            ],
         ]);
 
         register_rest_route(self::NAMESPACE, '/credits/add', [
@@ -39,6 +52,7 @@ class CreditApiController
                         return is_numeric($param) && (float) $param > 0;
                     },
                 ],
+                'type' => $this->getTypeArg(),
                 'note' => [
                     'required'          => false,
                     'sanitize_callback' => 'sanitize_text_field',
@@ -63,6 +77,7 @@ class CreditApiController
                         return is_numeric($param) && (float) $param > 0;
                     },
                 ],
+                'type' => $this->getTypeArg(),
                 'note' => [
                     'required'          => false,
                     'sanitize_callback' => 'sanitize_text_field',
@@ -81,6 +96,7 @@ class CreditApiController
                         return is_numeric($param) && (int) $param > 0;
                     },
                 ],
+                'type' => $this->getTypeArg(),
                 'per_page' => [
                     'required'          => false,
                     'default'           => 20,
@@ -89,6 +105,12 @@ class CreditApiController
                     },
                 ],
             ],
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/credits/types', [
+            'methods'             => 'GET',
+            'callback'            => [$this, 'getTypes'],
+            'permission_callback' => '__return_true',
         ]);
 
         register_rest_route(self::NAMESPACE, '/credits/cart/apply', [
@@ -113,6 +135,25 @@ class CreditApiController
         ]);
     }
 
+    protected function getTypeArg(): array
+    {
+        return [
+            'required'          => false,
+            'sanitize_callback' => 'sanitize_key',
+            'validate_callback' => function ($param) {
+                return $param === null || $param === ''
+                    || CreditManager::instance()->registry()->has((string) $param);
+            },
+        ];
+    }
+
+    protected function resolveType(\WP_REST_Request $request): CreditType
+    {
+        $type = $request->get_param('type');
+
+        return $this->account->resolveType(is_string($type) ? $type : null);
+    }
+
     public function checkUserPermission(): bool
     {
         return is_user_logged_in();
@@ -123,18 +164,31 @@ class CreditApiController
         return current_user_can('manage_options');
     }
 
+    public function getTypes(): \WP_REST_Response
+    {
+        return new \WP_REST_Response([
+            'success' => true,
+            'types'   => array_map(function (CreditType $type): array {
+                return $type->toArray();
+            }, $this->account->registry()->all()),
+            'default' => $this->account->registry()->getDefault()->getId(),
+        ]);
+    }
+
     public function getBalance(\WP_REST_Request $request): \WP_REST_Response
     {
         $userId = get_current_user_id();
-        $balance = (float) get_user_meta($userId, UserCreditMetaBoxes::BALANCE_META_KEY, true);
-        $currency = get_option('jankx_credit_currency_symbol', 'đ');
+        $type = $this->resolveType($request);
+        $balance = $this->account->getBalance($userId, $type->getId());
 
         return new \WP_REST_Response([
-            'success'  => true,
-            'user_id'  => $userId,
-            'balance'  => $balance,
-            'currency' => $currency,
-            'formatted' => number_format($balance, 0, ',', '.') . ' ' . $currency,
+            'success'   => true,
+            'user_id'   => $userId,
+            'type'      => $type->getId(),
+            'label'     => $type->getLabel(),
+            'balance'   => $balance,
+            'currency'  => $type->getSymbol(),
+            'formatted' => $type->format($balance),
         ]);
     }
 
@@ -142,7 +196,8 @@ class CreditApiController
     {
         $userId = (int) $request->get_param('user_id');
         $amount = (float) $request->get_param('amount');
-        $note = $request->get_param('note') ?: '';
+        $note = (string) ($request->get_param('note') ?: '');
+        $type = $this->resolveType($request);
 
         $user = get_userdata($userId);
         if (!$user) {
@@ -152,30 +207,32 @@ class CreditApiController
             ], 404);
         }
 
-        $currentBalance = (float) get_user_meta($userId, UserCreditMetaBoxes::BALANCE_META_KEY, true);
-        $newBalance = $currentBalance + $amount;
+        $title = sprintf(
+            __('Nạp %s cho %s', 'jankx'),
+            $note !== '' ? $note : $type->format($amount),
+            $user->display_name
+        );
 
-        update_user_meta($userId, UserCreditMetaBoxes::BALANCE_META_KEY, $newBalance);
-
-        $postId = wp_insert_post([
-            'post_type'    => CreditTransactionPostType::POST_TYPE,
-            'post_title'   => sprintf(__('Nạp %s cho %s', 'jankx'), $note ?: number_format($amount, 0, ',', '.'), $user->display_name),
-            'post_status'  => 'publish',
-            'meta_input'   => [
-                '_credit_type'          => 'topup',
-                '_credit_amount'        => $amount,
-                '_credit_balance_after' => $newBalance,
-                '_credit_user_id'       => $userId,
-                '_credit_note'          => $note,
-            ],
-        ]);
+        try {
+            $transaction = $this->account->deposit($userId, $amount, $note, $type->getId(), $title);
+        } catch (InvalidArgumentException $exception) {
+            return new \WP_REST_Response([
+                'success' => false,
+                'message' => $exception->getMessage(),
+            ], 400);
+        }
 
         return new \WP_REST_Response([
             'success'        => true,
-            'transaction_id' => $postId,
-            'balance'        => $newBalance,
+            'transaction_id' => $transaction->getId(),
+            'type'           => $type->getId(),
+            'balance'        => $transaction->getBalanceAfter(),
             'added'          => $amount,
-            'message'        => sprintf(__('Đã nạp %s tín dụng cho %s.', 'jankx'), number_format($amount, 0, ',', '.'), $user->display_name),
+            'message'        => sprintf(
+                __('Đã nạp %s cho %s.', 'jankx'),
+                $type->format($amount),
+                $user->display_name
+            ),
         ]);
     }
 
@@ -183,7 +240,8 @@ class CreditApiController
     {
         $userId = (int) $request->get_param('user_id');
         $amount = (float) $request->get_param('amount');
-        $note = $request->get_param('note') ?: '';
+        $note = (string) ($request->get_param('note') ?: '');
+        $type = $this->resolveType($request);
 
         $user = get_userdata($userId);
         if (!$user) {
@@ -193,37 +251,40 @@ class CreditApiController
             ], 404);
         }
 
-        $currentBalance = (float) get_user_meta($userId, UserCreditMetaBoxes::BALANCE_META_KEY, true);
-        $newBalance = $currentBalance - $amount;
+        $title = sprintf(
+            __('Trừ %s từ %s', 'jankx'),
+            $note !== '' ? $note : $type->format($amount),
+            $user->display_name
+        );
 
-        if ($newBalance < 0) {
+        try {
+            $transaction = $this->account->withdraw($userId, $amount, $note, $type->getId(), $title);
+        } catch (InsufficientCreditBalanceException $exception) {
             return new \WP_REST_Response([
                 'success' => false,
-                'message' => sprintf(__('Số dư không đủ. Số dư hiện tại: %s', 'jankx'), number_format($currentBalance, 0, ',', '.')),
+                'message' => sprintf(
+                    __('Số dư không đủ. Số dư hiện tại: %s', 'jankx'),
+                    $type->format($exception->getBalance())
+                ),
+            ], 400);
+        } catch (InvalidArgumentException $exception) {
+            return new \WP_REST_Response([
+                'success' => false,
+                'message' => $exception->getMessage(),
             ], 400);
         }
 
-        update_user_meta($userId, UserCreditMetaBoxes::BALANCE_META_KEY, $newBalance);
-
-        $postId = wp_insert_post([
-            'post_type'    => CreditTransactionPostType::POST_TYPE,
-            'post_title'   => sprintf(__('Trừ %s từ %s', 'jankx'), $note ?: number_format($amount, 0, ',', '.'), $user->display_name),
-            'post_status'  => 'publish',
-            'meta_input'   => [
-                '_credit_type'          => 'deduct',
-                '_credit_amount'        => $amount,
-                '_credit_balance_after' => $newBalance,
-                '_credit_user_id'       => $userId,
-                '_credit_note'          => $note,
-            ],
-        ]);
-
         return new \WP_REST_Response([
             'success'        => true,
-            'transaction_id' => $postId,
-            'balance'        => $newBalance,
+            'transaction_id' => $transaction->getId(),
+            'type'           => $type->getId(),
+            'balance'        => $transaction->getBalanceAfter(),
             'deducted'       => $amount,
-            'message'        => sprintf(__('Đã trừ %s tín dụng từ %s.', 'jankx'), number_format($amount, 0, ',', '.'), $user->display_name),
+            'message'        => sprintf(
+                __('Đã trừ %s từ %s.', 'jankx'),
+                $type->format($amount),
+                $user->display_name
+            ),
         ]);
     }
 
@@ -231,6 +292,7 @@ class CreditApiController
     {
         $userId = $request->get_param('user_id') ? (int) $request->get_param('user_id') : get_current_user_id();
         $perPage = (int) $request->get_param('per_page');
+        $typeId = $request->get_param('type') ?: null;
 
         if (!current_user_can('manage_options') && $userId !== get_current_user_id()) {
             return new \WP_REST_Response([
@@ -239,40 +301,15 @@ class CreditApiController
             ], 403);
         }
 
-        $args = [
-            'post_type'      => CreditTransactionPostType::POST_TYPE,
-            'post_status'    => 'any',
-            'posts_per_page' => $perPage,
-            'meta_query'     => [
-                [
-                    'key'     => '_credit_user_id',
-                    'value'   => $userId,
-                    'compare' => '=',
-                ],
-            ],
-            'orderby'        => 'date',
-            'order'          => 'DESC',
-        ];
-
-        $query = new \WP_Query($args);
-        $transactions = [];
-
-        foreach ($query->posts as $post) {
-            $transactions[] = [
-                'id'             => $post->ID,
-                'title'          => $post->post_title,
-                'type'           => get_post_meta($post->ID, '_credit_type', true),
-                'amount'         => (float) get_post_meta($post->ID, '_credit_amount', true),
-                'balance_after'  => (float) get_post_meta($post->ID, '_credit_balance_after', true),
-                'note'           => get_post_meta($post->ID, '_credit_note', true),
-                'date'           => $post->post_date,
-            ];
-        }
+        $transactions = $this->account->getTransactions($userId, $perPage, $typeId);
 
         return new \WP_REST_Response([
             'success'      => true,
-            'transactions' => $transactions,
-            'total'        => $query->found_posts,
+            'type'         => $typeId,
+            'transactions' => array_map(function ($transaction): array {
+                return $transaction->toArray();
+            }, $transactions),
+            'total'        => $this->account->countTransactions($userId, $typeId),
         ]);
     }
 
@@ -303,6 +340,7 @@ class CreditApiController
     protected function buildCreditPaymentResponse(array $result): array
     {
         $integration = CheckoutIntegration::get_instance();
+        $type = $this->account->resolveType();
 
         $cartPayload = [];
         $creditDiscount = 0.0;
@@ -316,13 +354,14 @@ class CreditApiController
         }
 
         return array_merge($result, [
-            'applied'                    => $integration->isApplied(),
-            'balance'                    => $integration->getBalance(),
-            'credit_discount'            => $creditDiscount,
-            'coupon_discount'            => $couponDiscount,
-            'formatted_credit_discount'  => $this->formatPrice($creditDiscount),
-            'formatted_coupon_discount'  => $this->formatPrice($couponDiscount),
-            'cart'                       => $cartPayload,
+            'type'                      => $type->getId(),
+            'applied'                   => $integration->isApplied(),
+            'balance'                   => $integration->getBalance(),
+            'credit_discount'           => $creditDiscount,
+            'coupon_discount'           => $couponDiscount,
+            'formatted_credit_discount' => $this->formatPrice($creditDiscount),
+            'formatted_coupon_discount' => $this->formatPrice($couponDiscount),
+            'cart'                      => $cartPayload,
         ]);
     }
 
