@@ -33,6 +33,9 @@ class CreditsSubPage extends AbstractSubPage
 
     public function getContent(): string
     {
-        return '<!-- wp:jankx/account-tab-credits /-->';
+        return '<!-- wp:jankx/account-tab-credits -->'
+            . '<!-- wp:jankx/credits-balance /-->'
+            . '<!-- wp:jankx/credits-history /-->'
+            . '<!-- /wp:jankx/account-tab-credits -->';
     }
 }

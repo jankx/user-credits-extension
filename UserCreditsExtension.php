@@ -159,14 +159,28 @@ class UserCreditsExtension extends AbstractExtension
         }
 
         $blockPath = $blocksDir;
-        if (!file_exists($blockPath . '/block.json')) {
-            return;
+        if (file_exists($blockPath . '/block.json')) {
+            $block = new \Jankx\Extensions\UserCredits\Blocks\AccountTabCreditsBlock($blockPath);
+            $block->setBlockPath($blockPath);
+            $block->boot();
+            $block->register();
         }
 
-        $block = new \Jankx\Extensions\UserCredits\Blocks\AccountTabCreditsBlock($blockPath);
-        $block->setBlockPath($blockPath);
-        $block->boot();
-        $block->register();
+        $childBlocks = [
+            'credits-balance' => \Jankx\Extensions\UserCredits\Blocks\CreditsBalanceBlock::class,
+            'credits-history' => \Jankx\Extensions\UserCredits\Blocks\CreditsHistoryBlock::class,
+        ];
+
+        foreach ($childBlocks as $dirName => $blockClass) {
+            $childPath = $blocksDir . '/' . $dirName;
+            if (!file_exists($childPath . '/block.json')) {
+                continue;
+            }
+            $block = new $blockClass($childPath);
+            $block->setBlockPath($childPath);
+            $block->boot();
+            $block->register();
+        }
     }
 
     /**
