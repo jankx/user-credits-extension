@@ -86,8 +86,10 @@ class UserCreditsExtension extends AbstractExtension
         // Frontend assets for the cart & checkout credit payment UI.
         add_action('wp_enqueue_scripts', [$this, 'enqueuePaymentAssets']);
 
-        // Always register blocks so ServerSideRender works in editor
-        $this->registerBlocks();
+        // Always register blocks so ServerSideRender works in editor.
+        // Defer to init because register_block_type_from_metadata() calls
+        // wp_script_is() which must not run before the init hook.
+        add_action('init', [$this, 'registerBlocks']);
 
         if (is_admin()) {
             $settingsPage = new SettingsPage($manager->registry());
