@@ -27,7 +27,7 @@ class CreditsBalanceBlock extends Block
         $output = sprintf('<div %s>', $wrapperAttrs);
         $output .= '<h3 class="jankx-section-title">' . esc_html($type->getLabel()) . '</h3>';
         $output .= '<div class="jankx-credit-card">';
-        $output .= '<div class="jankx-credit-label">' . esc_html__('Số dư hiện tại', 'jankx') . '</div>';
+        $output .= '<div class="jankx-credit-label">' . esc_html__('Số dư hiện tại', 'jankx_user_credit') . '</div>';
         $output .= '<div class="jankx-credit-amount">' . esc_html($type->format($balance)) . '</div>';
         $output .= '</div>';
         $output .= '</div>';

@@ -1,0 +1,453 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-28T01:21:43+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: jankx_user_credit\n"
+
+#: src/Admin/SettingsPage.php:32
+msgid "Credit Settings"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:33
+msgid "Cài đặt tín dụng"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:124
+msgid "Cài đặt hệ thống tín dụng"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:125
+msgid "Quản lý cài đặt ví tiền và tín dụng người dùng."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:133
+msgid "Bật hệ thống tín dụng"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:138
+#: src/Admin/SettingsPage.php:231
+msgid "Bật"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:141
+#: src/Admin/SettingsPage.php:234
+msgid "Tắt"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:149
+msgid "Ký hiệu tiền tệ"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:163
+msgid "Số tiền nạp tối thiểu"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:173
+#: src/Admin/SettingsPage.php:189
+msgid "Đơn vị: VND"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:179
+msgid "Số tiền nạp tối đa"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:195
+msgid "Hạn sử dụng (ngày)"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:204
+msgid "Để 0 nếu tín dụng không hết hạn."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:209
+#: src/Admin/SettingsPage.php:306
+msgid "Lưu cài đặt"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:212
+#: src/Reward/OrderRewardIntegration.php:190
+msgid "Thưởng xu khi hoàn thành đơn hàng"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:214
+msgid "Hệ thống sẽ tự động thưởng xu cho khách hàng khi đơn hàng được ghi nhận qua checkout (bao gồm đơn do telesale tạo online)."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:224
+msgid "Bật thưởng xu"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:243
+msgid "Tỷ lệ chuyển đổi"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:255
+msgid "Số tiền (VND) giá trị đơn hàng tương ứng với 1 xu. VD: nhập 10.000 → mỗi 10.000đ đơn hàng khách nhận 1 xu (làm tròn xuống)."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:263
+msgid "Đơn hàng tối thiểu"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:275
+msgid "Tổng giá trị đơn hàng tối thiểu (VND) mới được thưởng xu. Để 0 nếu không giới hạn."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:283
+msgid "Ví nhận xu"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:290
+msgid "Ví mặc định"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:300
+msgid "Ví sẽ nhận xu thưởng. Chọn \"Ví mặc định\" để dùng ví được cài làm mặc định."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:309
+msgid "Loại tín dụng đã đăng ký"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:311
+msgid "Các loại tín dụng có thể được mở rộng bởi extension khác thông qua hook jankx/user-credits/register_credit_types."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:316
+msgid "Mã"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:317
+msgid "Tên"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:318
+msgid "Ký hiệu"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:319
+msgid "Meta key"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:329
+msgid "mặc định"
+msgstr ""
+
+#: src/Admin/ThemeOptionsIntegration.php:51
+msgid "User Credits"
+msgstr ""
+
+#: src/Admin/ThemeOptionsIntegration.php:53
+msgid "Use user credits as a payment method for ecommerce orders."
+msgstr ""
+
+#: src/Admin/ThemeOptionsIntegration.php:56
+msgid "Credit Payment"
+msgstr ""
+
+#: src/Admin/ThemeOptionsIntegration.php:61
+msgid "Enable credit payments"
+msgstr ""
+
+#: src/Admin/ThemeOptionsIntegration.php:64
+msgid "On"
+msgstr ""
+
+#: src/Admin/ThemeOptionsIntegration.php:65
+msgid "Off"
+msgstr ""
+
+#: src/Admin/ThemeOptionsIntegration.php:68
+msgid "Allow logged-in customers to pay for orders with their credit balance (1 credit = 1 unit of the default currency)."
+msgstr ""
+
+#: src/Admin/ThemeOptionsIntegration.php:74
+msgid "Payment label"
+msgstr ""
+
+#: src/Admin/ThemeOptionsIntegration.php:79
+#: src/Integration/CheckoutIntegration.php:110
+msgid "Dùng tín dụng để thanh toán"
+msgstr ""
+
+#: src/Admin/ThemeOptionsIntegration.php:80
+msgid "Label shown to customers in the cart and checkout."
+msgstr ""
+
+#: src/Blocks/CreditsBalanceBlock.php:30
+msgid "Số dư hiện tại"
+msgstr ""
+
+#: src/Blocks/CreditsHistoryBlock.php:28
+msgid "Lịch sử giao dịch"
+msgstr ""
+
+#: src/Blocks/CreditsHistoryBlock.php:31
+#: src/Meta/UserCreditMetaBoxes.php:76
+msgid "Chưa có giao dịch nào."
+msgstr ""
+
+#: src/Blocks/CreditsHistoryBlock.php:35
+msgid "Ngày"
+msgstr ""
+
+#: src/Blocks/CreditsHistoryBlock.php:36
+msgid "Mô tả"
+msgstr ""
+
+#: src/Blocks/CreditsHistoryBlock.php:37
+#: src/Meta/UserCreditMetaBoxes.php:85
+#: src/PostTypes/CreditTransactionPostType.php:67
+msgid "Số tiền"
+msgstr ""
+
+#: src/Credit/CreditTransactionAction.php:58
+msgid "Nạp tiền"
+msgstr ""
+
+#: src/Credit/CreditTransactionAction.php:59
+msgid "Trừ tiền"
+msgstr ""
+
+#: src/Credit/CreditTransactionAction.php:60
+msgid "Hoàn tiền"
+msgstr ""
+
+#: src/Credit/CreditTransactionAction.php:61
+msgid "Thanh toán booking"
+msgstr ""
+
+#: src/Credit/CreditTransactionAction.php:62
+msgid "Hoa hồng"
+msgstr ""
+
+#: src/Credit/CreditTransactionAction.php:63
+msgid "Xu thưởng"
+msgstr ""
+
+#: src/CreditType/CreditManager.php:94
+msgid "Coin"
+msgstr ""
+
+#: src/Integration/CheckoutIntegration.php:141
+msgid "Thanh toán bằng tín dụng đang tắt."
+msgstr ""
+
+#: src/Integration/CheckoutIntegration.php:148
+msgid "Vui lòng đăng nhập để dùng tín dụng."
+msgstr ""
+
+#: src/Integration/CheckoutIntegration.php:159
+msgid "Số dư tín dụng của bạn không đủ."
+msgstr ""
+
+#: src/Integration/CheckoutIntegration.php:169
+msgid "Đã áp dụng tín dụng cho đơn hàng."
+msgstr ""
+
+#: src/Integration/CheckoutIntegration.php:184
+msgid "Đã gỡ tín dụng."
+msgstr ""
+
+#. translators: %s: order number.
+#: src/Integration/CheckoutIntegration.php:311
+#: src/Reward/OrderRewardIntegration.php:186
+#, php-format
+msgid "Đơn hàng %s"
+msgstr ""
+
+#. translators: %s: order number.
+#: src/Integration/CheckoutIntegration.php:315
+#, php-format
+msgid "Thanh toán đơn hàng %s bằng tín dụng"
+msgstr ""
+
+#: src/Integration/CheckoutIntegration.php:318
+msgid "Thanh toán đơn hàng bằng tín dụng"
+msgstr ""
+
+#: src/Meta/UserCreditMetaBoxes.php:35
+msgid "Tín dụng người dùng"
+msgstr ""
+
+#. translators: %s: credit unit symbol
+#: src/Meta/UserCreditMetaBoxes.php:59
+#, php-format
+msgid "Đơn vị: %s"
+msgstr ""
+
+#: src/Meta/UserCreditMetaBoxes.php:72
+msgid "Lịch sử giao dịch gần đây"
+msgstr ""
+
+#: src/Meta/UserCreditMetaBoxes.php:83
+msgid "Thời gian"
+msgstr ""
+
+#: src/Meta/UserCreditMetaBoxes.php:84
+msgid "Loại"
+msgstr ""
+
+#: src/Meta/UserCreditMetaBoxes.php:86
+msgid "Số dư"
+msgstr ""
+
+#: src/MyAccount/CreditsSubPage.php:16
+msgid "Credits"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:30
+#: src/PostTypes/CreditTransactionPostType.php:31
+msgid "Giao dịch"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:32
+msgid "Giao dịch tín dụng"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:33
+msgid "Thêm mới"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:34
+msgid "Thêm giao dịch mới"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:35
+msgid "Chỉnh sửa giao dịch"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:36
+msgid "Giao dịch mới"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:37
+msgid "Xem giao dịch"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:38
+msgid "Tìm giao dịch"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:39
+msgid "Không tìm thấy giao dịch"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:40
+msgid "Không có giao dịch nào trong thùng rác"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:41
+msgid "Tất cả giao dịch"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:65
+msgid "Loại giao dịch"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:66
+msgid "Loại tín dụng"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:68
+msgid "Số dư sau"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:69
+msgid "Người dùng"
+msgstr ""
+
+#: src/PostTypes/CreditTransactionPostType.php:120
+msgid "Không xác định"
+msgstr ""
+
+#: src/Rest/CreditApiController.php:206
+#: src/Rest/CreditApiController.php:252
+msgid "Không tìm thấy người dùng."
+msgstr ""
+
+#. translators: 1: transaction note or formatted amount, 2: user display name.
+#: src/Rest/CreditApiController.php:212
+#, php-format
+msgid "Nạp %1$s cho %2$s"
+msgstr ""
+
+#. translators: 1: formatted amount, 2: user display name.
+#: src/Rest/CreditApiController.php:234
+#, php-format
+msgid "Đã nạp %1$s cho %2$s."
+msgstr ""
+
+#. translators: 1: transaction note or formatted amount, 2: user display name.
+#: src/Rest/CreditApiController.php:258
+#, php-format
+msgid "Trừ %1$s từ %2$s"
+msgstr ""
+
+#. translators: %s: formatted remaining balance.
+#: src/Rest/CreditApiController.php:270
+#, php-format
+msgid "Số dư không đủ. Số dư hiện tại: %s"
+msgstr ""
+
+#. translators: 1: amount, 2: user display name.
+#: src/Rest/CreditApiController.php:289
+#, php-format
+msgid "Đã trừ %1$s từ %2$s."
+msgstr ""
+
+#: src/Rest/CreditApiController.php:305
+msgid "Không có quyền xem lịch sử giao dịch này."
+msgstr ""
+
+#. translators: %s: order number.
+#: src/Reward/OrderRewardIntegration.php:189
+#, php-format
+msgid "Thưởng xu đơn hàng %s"
+msgstr ""
+
+#: UserCreditsExtension.php:189
+msgid "Đã xảy ra lỗi, vui lòng thử lại."
+msgstr ""
+
+#: UserCreditsExtension.php:190
+msgid "Yêu cầu thất bại. Vui lòng thử lại."
+msgstr ""
+
+#: blocks/block.json
+msgctxt "block title"
+msgid "Credits Tab"
+msgstr ""
+
+#: blocks/block.json
+msgctxt "block description"
+msgid "Display user's credit balance and transaction history."
+msgstr ""
+
+#: blocks/credits-balance/block.json
+msgctxt "block title"
+msgid "Credit Balance"
+msgstr ""
+
+#: blocks/credits-balance/block.json
+msgctxt "block description"
+msgid "Current credit balance card."
+msgstr ""
+
+#: blocks/credits-history/block.json
+msgctxt "block title"
+msgid "Transaction History"
+msgstr ""
+
+#: blocks/credits-history/block.json
+msgctxt "block description"
+msgid "Credit transaction history table."
+msgstr ""

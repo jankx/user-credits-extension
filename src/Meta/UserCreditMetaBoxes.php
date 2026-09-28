@@ -32,7 +32,7 @@ class UserCreditMetaBoxes
     {
         $isAdmin = current_user_can('manage_options');
         ?>
-        <h2><?php esc_html_e('Tín dụng người dùng', 'jankx'); ?></h2>
+        <h2><?php esc_html_e('Tín dụng người dùng', 'jankx_user_credit'); ?></h2>
         <?php wp_nonce_field('save_user_credits_balance_' . $user->ID, 'user_credits_balance_nonce'); ?>
         <table class="form-table" role="presentation">
             <?php foreach ($this->registry->all() as $type): ?>
@@ -56,7 +56,7 @@ class UserCreditMetaBoxes
                                 <?php
                                 printf(
                                     /* translators: %s: credit unit symbol */
-                                    esc_html__('Đơn vị: %s', 'jankx'),
+                                    esc_html__('Đơn vị: %s', 'jankx_user_credit'),
                                     esc_html($type->getSymbol())
                                 );
                                 ?>
@@ -69,21 +69,21 @@ class UserCreditMetaBoxes
             <?php endforeach; ?>
         </table>
 
-        <h3><?php esc_html_e('Lịch sử giao dịch gần đây', 'jankx'); ?></h3>
+        <h3><?php esc_html_e('Lịch sử giao dịch gần đây', 'jankx_user_credit'); ?></h3>
         <?php
         $transactions = $this->account->getTransactions($user->ID, 10);
         if (empty($transactions)) {
-            echo '<p>' . esc_html__('Chưa có giao dịch nào.', 'jankx') . '</p>';
+            echo '<p>' . esc_html__('Chưa có giao dịch nào.', 'jankx_user_credit') . '</p>';
             return;
         }
         ?>
         <table class="wp-list-table widefat fixed striped" style="max-width: 700px;">
             <thead>
                 <tr>
-                    <th style="width: 25%;"><?php esc_html_e('Thời gian', 'jankx'); ?></th>
-                    <th style="width: 25%;"><?php esc_html_e('Loại', 'jankx'); ?></th>
-                    <th style="width: 25%;"><?php esc_html_e('Số tiền', 'jankx'); ?></th>
-                    <th style="width: 25%;"><?php esc_html_e('Số dư', 'jankx'); ?></th>
+                    <th style="width: 25%;"><?php esc_html_e('Thời gian', 'jankx_user_credit'); ?></th>
+                    <th style="width: 25%;"><?php esc_html_e('Loại', 'jankx_user_credit'); ?></th>
+                    <th style="width: 25%;"><?php esc_html_e('Số tiền', 'jankx_user_credit'); ?></th>
+                    <th style="width: 25%;"><?php esc_html_e('Số dư', 'jankx_user_credit'); ?></th>
                 </tr>
             </thead>
             <tbody>

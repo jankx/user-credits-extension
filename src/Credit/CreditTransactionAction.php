@@ -55,12 +55,12 @@ final class CreditTransactionAction
     public static function labels(): array
     {
         return [
-            self::TOPUP => __('Nạp tiền', 'jankx'),
-            self::DEDUCT => __('Trừ tiền', 'jankx'),
-            self::REFUND => __('Hoàn tiền', 'jankx'),
-            self::BOOKING => __('Thanh toán booking', 'jankx'),
-            self::COMMISSION => __('Hoa hồng', 'jankx'),
-            self::REWARD => __('Xu thưởng', 'jankx'),
+            self::TOPUP => __('Nạp tiền', 'jankx_user_credit'),
+            self::DEDUCT => __('Trừ tiền', 'jankx_user_credit'),
+            self::REFUND => __('Hoàn tiền', 'jankx_user_credit'),
+            self::BOOKING => __('Thanh toán booking', 'jankx_user_credit'),
+            self::COMMISSION => __('Hoa hồng', 'jankx_user_credit'),
+            self::REWARD => __('Xu thưởng', 'jankx_user_credit'),
         ];
     }
 

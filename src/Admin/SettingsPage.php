@@ -29,8 +29,8 @@ class SettingsPage
     {
         add_submenu_page(
             'jankx-theme-options',
-            __('Credit Settings', 'jankx'),
-            __('Cài đặt tín dụng', 'jankx'),
+            __('Credit Settings', 'jankx_user_credit'),
+            __('Cài đặt tín dụng', 'jankx_user_credit'),
             'manage_options',
             self::PAGE_SLUG,
             [$this, 'renderPage']
@@ -121,8 +121,8 @@ class SettingsPage
         }
         ?>
         <div class="wrap jankx-credit-wrap">
-            <h1><?php esc_html_e('Cài đặt hệ thống tín dụng', 'jankx'); ?></h1>
-            <p class="description"><?php esc_html_e('Quản lý cài đặt ví tiền và tín dụng người dùng.', 'jankx'); ?></p>
+            <h1><?php esc_html_e('Cài đặt hệ thống tín dụng', 'jankx_user_credit'); ?></h1>
+            <p class="description"><?php esc_html_e('Quản lý cài đặt ví tiền và tín dụng người dùng.', 'jankx_user_credit'); ?></p>
 
             <form method="post" action="options.php" style="max-width: 700px; margin-top: 20px;">
                 <?php settings_fields(self::OPTION_GROUP); ?>
@@ -130,15 +130,15 @@ class SettingsPage
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="jankx_credit_enabled"><?php esc_html_e('Bật hệ thống tín dụng', 'jankx'); ?></label>
+                            <label for="jankx_credit_enabled"><?php esc_html_e('Bật hệ thống tín dụng', 'jankx_user_credit'); ?></label>
                         </th>
                         <td>
                             <select id="jankx_credit_enabled" name="jankx_credit_enabled">
                                 <option value="yes" <?php selected(get_option('jankx_credit_enabled', 'yes'), 'yes'); ?>>
-                                    <?php esc_html_e('Bật', 'jankx'); ?>
+                                    <?php esc_html_e('Bật', 'jankx_user_credit'); ?>
                                 </option>
                                 <option value="no" <?php selected(get_option('jankx_credit_enabled', 'yes'), 'no'); ?>>
-                                    <?php esc_html_e('Tắt', 'jankx'); ?>
+                                    <?php esc_html_e('Tắt', 'jankx_user_credit'); ?>
                                 </option>
                             </select>
                         </td>
@@ -146,7 +146,7 @@ class SettingsPage
 
                     <tr>
                         <th scope="row">
-                            <label for="jankx_credit_currency_symbol"><?php esc_html_e('Ký hiệu tiền tệ', 'jankx'); ?></label>
+                            <label for="jankx_credit_currency_symbol"><?php esc_html_e('Ký hiệu tiền tệ', 'jankx_user_credit'); ?></label>
                         </th>
                         <td>
                             <input type="text"
@@ -160,7 +160,7 @@ class SettingsPage
 
                     <tr>
                         <th scope="row">
-                            <label for="jankx_credit_min_topup"><?php esc_html_e('Số tiền nạp tối thiểu', 'jankx'); ?></label>
+                            <label for="jankx_credit_min_topup"><?php esc_html_e('Số tiền nạp tối thiểu', 'jankx_user_credit'); ?></label>
                         </th>
                         <td>
                             <input type="number"
@@ -170,13 +170,13 @@ class SettingsPage
                                    class="regular-text"
                                    step="1000"
                                    min="0">
-                            <p class="description"><?php esc_html_e('Đơn vị: VND', 'jankx'); ?></p>
+                            <p class="description"><?php esc_html_e('Đơn vị: VND', 'jankx_user_credit'); ?></p>
                         </td>
                     </tr>
 
                     <tr>
                         <th scope="row">
-                            <label for="jankx_credit_max_topup"><?php esc_html_e('Số tiền nạp tối đa', 'jankx'); ?></label>
+                            <label for="jankx_credit_max_topup"><?php esc_html_e('Số tiền nạp tối đa', 'jankx_user_credit'); ?></label>
                         </th>
                         <td>
                             <input type="number"
@@ -186,13 +186,13 @@ class SettingsPage
                                    class="regular-text"
                                    step="1000"
                                    min="0">
-                            <p class="description"><?php esc_html_e('Đơn vị: VND', 'jankx'); ?></p>
+                            <p class="description"><?php esc_html_e('Đơn vị: VND', 'jankx_user_credit'); ?></p>
                         </td>
                     </tr>
 
                     <tr>
                         <th scope="row">
-                            <label for="jankx_credit_expiry_days"><?php esc_html_e('Hạn sử dụng (ngày)', 'jankx'); ?></label>
+                            <label for="jankx_credit_expiry_days"><?php esc_html_e('Hạn sử dụng (ngày)', 'jankx_user_credit'); ?></label>
                         </th>
                         <td>
                             <input type="number"
@@ -201,17 +201,17 @@ class SettingsPage
                                    value="<?php echo esc_attr(get_option('jankx_credit_expiry_days', 0)); ?>"
                                    class="small-text"
                                    min="0">
-                            <p class="description"><?php esc_html_e('Để 0 nếu tín dụng không hết hạn.', 'jankx'); ?></p>
+                            <p class="description"><?php esc_html_e('Để 0 nếu tín dụng không hết hạn.', 'jankx_user_credit'); ?></p>
                         </td>
                     </tr>
                 </table>
 
-                <?php submit_button(__('Lưu cài đặt', 'jankx')); ?>
+                <?php submit_button(__('Lưu cài đặt', 'jankx_user_credit')); ?>
             </form>
 
-            <h2 style="margin-top: 32px;"><?php esc_html_e('Thưởng xu khi hoàn thành đơn hàng', 'jankx'); ?></h2>
+            <h2 style="margin-top: 32px;"><?php esc_html_e('Thưởng xu khi hoàn thành đơn hàng', 'jankx_user_credit'); ?></h2>
             <p class="description">
-                <?php esc_html_e('Hệ thống sẽ tự động thưởng xu cho khách hàng khi đơn hàng được ghi nhận qua checkout (bao gồm đơn do telesale tạo online).', 'jankx'); ?>
+                <?php esc_html_e('Hệ thống sẽ tự động thưởng xu cho khách hàng khi đơn hàng được ghi nhận qua checkout (bao gồm đơn do telesale tạo online).', 'jankx_user_credit'); ?>
             </p>
 
             <form method="post" action="options.php" style="max-width: 700px; margin-top: 20px;">
@@ -221,17 +221,17 @@ class SettingsPage
                     <tr>
                         <th scope="row">
                             <label for="<?php echo esc_attr(OrderRewardIntegration::OPTION_ENABLED); ?>">
-                                <?php esc_html_e('Bật thưởng xu', 'jankx'); ?>
+                                <?php esc_html_e('Bật thưởng xu', 'jankx_user_credit'); ?>
                             </label>
                         </th>
                         <td>
                             <select id="<?php echo esc_attr(OrderRewardIntegration::OPTION_ENABLED); ?>"
                                     name="<?php echo esc_attr(OrderRewardIntegration::OPTION_ENABLED); ?>">
                                 <option value="yes" <?php selected(get_option(OrderRewardIntegration::OPTION_ENABLED, 'no'), 'yes'); ?>>
-                                    <?php esc_html_e('Bật', 'jankx'); ?>
+                                    <?php esc_html_e('Bật', 'jankx_user_credit'); ?>
                                 </option>
                                 <option value="no" <?php selected(get_option(OrderRewardIntegration::OPTION_ENABLED, 'no'), 'no'); ?>>
-                                    <?php esc_html_e('Tắt', 'jankx'); ?>
+                                    <?php esc_html_e('Tắt', 'jankx_user_credit'); ?>
                                 </option>
                             </select>
                         </td>
@@ -240,7 +240,7 @@ class SettingsPage
                     <tr>
                         <th scope="row">
                             <label for="<?php echo esc_attr(OrderRewardIntegration::OPTION_AMOUNT_PER_CREDIT); ?>">
-                                <?php esc_html_e('Tỷ lệ chuyển đổi', 'jankx'); ?>
+                                <?php esc_html_e('Tỷ lệ chuyển đổi', 'jankx_user_credit'); ?>
                             </label>
                         </th>
                         <td>
@@ -252,7 +252,7 @@ class SettingsPage
                                    step="100"
                                    min="0">
                             <p class="description">
-                                <?php esc_html_e('Số tiền (VND) giá trị đơn hàng tương ứng với 1 xu. VD: nhập 10.000 → mỗi 10.000đ đơn hàng khách nhận 1 xu (làm tròn xuống).', 'jankx'); ?>
+                                <?php esc_html_e('Số tiền (VND) giá trị đơn hàng tương ứng với 1 xu. VD: nhập 10.000 → mỗi 10.000đ đơn hàng khách nhận 1 xu (làm tròn xuống).', 'jankx_user_credit'); ?>
                             </p>
                         </td>
                     </tr>
@@ -260,7 +260,7 @@ class SettingsPage
                     <tr>
                         <th scope="row">
                             <label for="<?php echo esc_attr(OrderRewardIntegration::OPTION_MIN_ORDER_TOTAL); ?>">
-                                <?php esc_html_e('Đơn hàng tối thiểu', 'jankx'); ?>
+                                <?php esc_html_e('Đơn hàng tối thiểu', 'jankx_user_credit'); ?>
                             </label>
                         </th>
                         <td>
@@ -272,7 +272,7 @@ class SettingsPage
                                    step="1000"
                                    min="0">
                             <p class="description">
-                                <?php esc_html_e('Tổng giá trị đơn hàng tối thiểu (VND) mới được thưởng xu. Để 0 nếu không giới hạn.', 'jankx'); ?>
+                                <?php esc_html_e('Tổng giá trị đơn hàng tối thiểu (VND) mới được thưởng xu. Để 0 nếu không giới hạn.', 'jankx_user_credit'); ?>
                             </p>
                         </td>
                     </tr>
@@ -280,14 +280,14 @@ class SettingsPage
                     <tr>
                         <th scope="row">
                             <label for="<?php echo esc_attr(OrderRewardIntegration::OPTION_WALLET); ?>">
-                                <?php esc_html_e('Ví nhận xu', 'jankx'); ?>
+                                <?php esc_html_e('Ví nhận xu', 'jankx_user_credit'); ?>
                             </label>
                         </th>
                         <td>
                             <select id="<?php echo esc_attr(OrderRewardIntegration::OPTION_WALLET); ?>"
                                     name="<?php echo esc_attr(OrderRewardIntegration::OPTION_WALLET); ?>">
                                 <option value="" <?php selected(get_option(OrderRewardIntegration::OPTION_WALLET, ''), ''); ?>>
-                                    <?php esc_html_e('Ví mặc định', 'jankx'); ?>
+                                    <?php esc_html_e('Ví mặc định', 'jankx_user_credit'); ?>
                                 </option>
                                 <?php foreach ($this->registry->all() as $type): ?>
                                     <option value="<?php echo esc_attr($type->getId()); ?>"
@@ -297,26 +297,26 @@ class SettingsPage
                                 <?php endforeach; ?>
                             </select>
                             <p class="description">
-                                <?php esc_html_e('Ví sẽ nhận xu thưởng. Chọn "Ví mặc định" để dùng ví được cài làm mặc định.', 'jankx'); ?>
+                                <?php esc_html_e('Ví sẽ nhận xu thưởng. Chọn "Ví mặc định" để dùng ví được cài làm mặc định.', 'jankx_user_credit'); ?>
                             </p>
                         </td>
                     </tr>
                 </table>
 
-                <?php submit_button(__('Lưu cài đặt', 'jankx')); ?>
+                <?php submit_button(__('Lưu cài đặt', 'jankx_user_credit')); ?>
             </form>
 
-            <h2 style="margin-top: 32px;"><?php esc_html_e('Loại tín dụng đã đăng ký', 'jankx'); ?></h2>
+            <h2 style="margin-top: 32px;"><?php esc_html_e('Loại tín dụng đã đăng ký', 'jankx_user_credit'); ?></h2>
             <p class="description">
-                <?php esc_html_e('Các loại tín dụng có thể được mở rộng bởi extension khác thông qua hook jankx/user-credits/register_credit_types.', 'jankx'); ?>
+                <?php esc_html_e('Các loại tín dụng có thể được mở rộng bởi extension khác thông qua hook jankx/user-credits/register_credit_types.', 'jankx_user_credit'); ?>
             </p>
             <table class="wp-list-table widefat fixed striped" style="max-width: 900px;">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e('Mã', 'jankx'); ?></th>
-                        <th><?php esc_html_e('Tên', 'jankx'); ?></th>
-                        <th><?php esc_html_e('Ký hiệu', 'jankx'); ?></th>
-                        <th><?php esc_html_e('Meta key', 'jankx'); ?></th>
+                        <th><?php esc_html_e('Mã', 'jankx_user_credit'); ?></th>
+                        <th><?php esc_html_e('Tên', 'jankx_user_credit'); ?></th>
+                        <th><?php esc_html_e('Ký hiệu', 'jankx_user_credit'); ?></th>
+                        <th><?php esc_html_e('Meta key', 'jankx_user_credit'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -326,7 +326,7 @@ class SettingsPage
                             <td>
                                 <?php echo esc_html($type->getLabel()); ?>
                                 <?php if ($type->is(CreditType::DEFAULT_ID)): ?>
-                                    <strong>(<?php esc_html_e('mặc định', 'jankx'); ?>)</strong>
+                                    <strong>(<?php esc_html_e('mặc định', 'jankx_user_credit'); ?>)</strong>
                                 <?php endif; ?>
                             </td>
                             <td><?php echo esc_html($type->getSymbol()); ?></td>

@@ -25,16 +25,16 @@ class CreditsHistoryBlock extends Block
         ]);
 
         $output = sprintf('<div %s>', $wrapperAttrs);
-        $output .= '<h3 class="jankx-section-title">' . esc_html__('Lịch sử giao dịch', 'jankx') . '</h3>';
+        $output .= '<h3 class="jankx-section-title">' . esc_html__('Lịch sử giao dịch', 'jankx_user_credit') . '</h3>';
 
         if (empty($history)) {
-            $output .= '<p class="text-muted">' . esc_html__('Chưa có giao dịch nào.', 'jankx') . '</p>';
+            $output .= '<p class="text-muted">' . esc_html__('Chưa có giao dịch nào.', 'jankx_user_credit') . '</p>';
         } else {
             $output .= '<table class="jankx-table">';
             $output .= '<thead><tr>';
-            $output .= '<th>' . esc_html__('Ngày', 'jankx') . '</th>';
-            $output .= '<th>' . esc_html__('Mô tả', 'jankx') . '</th>';
-            $output .= '<th>' . esc_html__('Số tiền', 'jankx') . '</th>';
+            $output .= '<th>' . esc_html__('Ngày', 'jankx_user_credit') . '</th>';
+            $output .= '<th>' . esc_html__('Mô tả', 'jankx_user_credit') . '</th>';
+            $output .= '<th>' . esc_html__('Số tiền', 'jankx_user_credit') . '</th>';
             $output .= '</tr></thead>';
             $output .= '<tbody>';
             foreach ($history as $item) {

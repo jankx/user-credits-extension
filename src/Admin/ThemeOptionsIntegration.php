@@ -48,36 +48,36 @@ class ThemeOptionsIntegration
         $enabled = Helper::getOption(CheckoutIntegration::OPTION_PAYMENT_ENABLED, 1);
         $label = Helper::getOption(CheckoutIntegration::OPTION_PAYMENT_LABEL, '');
 
-        $page = new Page(__('User Credits', 'jankx'), [], 'dashicons-before dashicons-money-alt');
+        $page = new Page(__('User Credits', 'jankx_user_credit'), [], 'dashicons-before dashicons-money-alt');
         $page->setId(self::PAGE_ID);
-        $page->setDescription(__('Use user credits as a payment method for ecommerce orders.', 'jankx'));
+        $page->setDescription(__('Use user credits as a payment method for ecommerce orders.', 'jankx_user_credit'));
         $page->setPriority(47);
 
-        $section = new Section(__('Credit Payment', 'jankx'), []);
+        $section = new Section(__('Credit Payment', 'jankx_user_credit'), []);
         $section->setId(self::PAGE_ID . '_payment');
 
         $section->addField(FieldFactory::create(
             CheckoutIntegration::OPTION_PAYMENT_ENABLED,
-            __('Enable credit payments', 'jankx'),
+            __('Enable credit payments', 'jankx_user_credit'),
             'switch',
             [
-                'on' => __('On', 'jankx'),
-                'off' => __('Off', 'jankx'),
+                'on' => __('On', 'jankx_user_credit'),
+                'off' => __('Off', 'jankx_user_credit'),
                 'value' => $enabled,
                 'default' => 1,
-                'description' => __('Allow logged-in customers to pay for orders with their credit balance (1 credit = 1 unit of the default currency).', 'jankx'),
+                'description' => __('Allow logged-in customers to pay for orders with their credit balance (1 credit = 1 unit of the default currency).', 'jankx_user_credit'),
             ]
         ));
 
         $section->addField(FieldFactory::create(
             CheckoutIntegration::OPTION_PAYMENT_LABEL,
-            __('Payment label', 'jankx'),
+            __('Payment label', 'jankx_user_credit'),
             'text',
             [
                 'value' => $label,
                 'default' => '',
-                'placeholder' => __('Dùng tín dụng để thanh toán', 'jankx'),
-                'description' => __('Label shown to customers in the cart and checkout.', 'jankx'),
+                'placeholder' => __('Dùng tín dụng để thanh toán', 'jankx_user_credit'),
+                'description' => __('Label shown to customers in the cart and checkout.', 'jankx_user_credit'),
             ]
         ));
 

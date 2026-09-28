@@ -6,7 +6,7 @@
     "category": "jankx",
     "icon": "money-alt",
     "description": "Current credit balance card.",
-    "textdomain": "jankx",
+    "textdomain": "jankx_user_credit",
     "editorScript": "file:./build/index.tsx.js",
     "parent": ["jankx/account-tab-credits"],
     "attributes": {

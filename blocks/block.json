@@ -6,7 +6,7 @@
     "category": "jankx",
     "icon": "money-alt",
     "description": "Display user's credit balance and transaction history.",
-    "textdomain": "jankx",
+    "textdomain": "jankx_user_credit",
     "editorScript": "file:./build/index.tsx.js",
     "attributes": {
         "jankxHideOnUltrawide": { "type": "boolean", "default": false },

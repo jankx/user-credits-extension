@@ -13,7 +13,7 @@ class CreditsSubPage extends AbstractSubPage
 
     public function getLabel(): string
     {
-        return __('Credits', 'jankx');
+        return __('Credits', 'jankx_user_credit');
     }
 
     public function getIcon(): string

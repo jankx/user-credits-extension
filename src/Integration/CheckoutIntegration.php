@@ -107,7 +107,7 @@ class CheckoutIntegration
     {
         $label = trim((string) $this->getOption(self::OPTION_PAYMENT_LABEL, ''));
 
-        return $label !== '' ? $label : __('Dùng tín dụng để thanh toán', 'jankx');
+        return $label !== '' ? $label : __('Dùng tín dụng để thanh toán', 'jankx_user_credit');
     }
 
     /* ---------------------------------------------------------------------
@@ -138,14 +138,14 @@ class CheckoutIntegration
         if (!$this->isEnabled()) {
             return [
                 'success' => false,
-                'message' => __('Thanh toán bằng tín dụng đang tắt.', 'jankx'),
+                'message' => __('Thanh toán bằng tín dụng đang tắt.', 'jankx_user_credit'),
             ];
         }
 
         if (!is_user_logged_in()) {
             return [
                 'success' => false,
-                'message' => __('Vui lòng đăng nhập để dùng tín dụng.', 'jankx'),
+                'message' => __('Vui lòng đăng nhập để dùng tín dụng.', 'jankx_user_credit'),
             ];
         }
 
@@ -156,7 +156,7 @@ class CheckoutIntegration
         if ($this->getBalance() <= 0) {
             return [
                 'success' => false,
-                'message' => __('Số dư tín dụng của bạn không đủ.', 'jankx'),
+                'message' => __('Số dư tín dụng của bạn không đủ.', 'jankx_user_credit'),
             ];
         }
 
@@ -166,7 +166,7 @@ class CheckoutIntegration
 
         return [
             'success' => true,
-            'message' => __('Đã áp dụng tín dụng cho đơn hàng.', 'jankx'),
+            'message' => __('Đã áp dụng tín dụng cho đơn hàng.', 'jankx_user_credit'),
             'applied' => true,
         ];
     }
@@ -181,7 +181,7 @@ class CheckoutIntegration
 
         return [
             'success' => true,
-            'message' => __('Đã gỡ tín dụng.', 'jankx'),
+            'message' => __('Đã gỡ tín dụng.', 'jankx_user_credit'),
             'applied' => false,
         ];
     }
@@ -308,10 +308,14 @@ class CheckoutIntegration
             ? (string) $order->getOrderNumber()
             : '';
 
-        $note = $orderNumber ? sprintf(__('Đơn hàng %s', 'jankx'), $orderNumber) : '';
+        $note = $orderNumber ? sprintf(__('Đơn hàng %s', 'jankx_user_credit'), $orderNumber) : '';
         $title = $orderNumber
-            ? sprintf(__('Thanh toán đơn hàng %s bằng tín dụng', 'jankx'), $orderNumber)
-            : __('Thanh toán đơn hàng bằng tín dụng', 'jankx');
+            ? sprintf(
+                /* translators: %s: order number. */
+                __('Thanh toán đơn hàng %s bằng tín dụng', 'jankx_user_credit'),
+                $orderNumber
+            )
+            : __('Thanh toán đơn hàng bằng tín dụng', 'jankx_user_credit');
 
         try {
             $transaction = $this->account()->withdraw($userId, $deduct, $note, null, $title);

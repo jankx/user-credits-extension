@@ -91,7 +91,7 @@ final class CreditManager
 
         $this->registry->register(new CreditType(
             CreditType::DEFAULT_ID,
-            __('Coin', 'jankx'),
+            __('Coin', 'jankx_user_credit'),
             $symbol !== '' ? $symbol : 'coin',
             CreditType::LEGACY_META_KEY,
             0,

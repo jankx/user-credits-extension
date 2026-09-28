@@ -15,6 +15,12 @@ class UserCreditsExtension extends AbstractExtension
 {
     protected static $instance;
 
+    /**
+     * Text domain owned by this extension. Every extension ships its own
+     * translations - only the theme's built-in blocks share the `jankx` domain.
+     */
+    public const TEXT_DOMAIN = 'jankx_user_credit';
+
     public function __construct()
     {
         $this->register_autoloader();
@@ -53,6 +59,9 @@ class UserCreditsExtension extends AbstractExtension
 
     public function register_hooks(): void
     {
+        // Load this extension's translations (.mo for PHP, .json for block JS).
+        $this->load_textdomain();
+
         $manager = CreditManager::instance();
 
         $postTypes = new CreditTransactionPostType($manager->registry());
@@ -96,6 +105,38 @@ class UserCreditsExtension extends AbstractExtension
             $settingsPage->register();
         } else {
             add_action('template_redirect', [$this, 'maybeRegisterFrontendBlocks']);
+        }
+    }
+
+    /**
+     * Load the extension's own translations and register the languages
+     * directory so block editor scripts can resolve their Jed JSON files.
+     */
+    protected function load_textdomain(): void
+    {
+        /** @var \WP_Textdomain_Registry $wp_textdomain_registry */
+        global $wp_textdomain_registry;
+
+        $locale = determine_locale();
+        $dir    = __DIR__ . '/languages';
+
+        if ($wp_textdomain_registry instanceof \WP_Textdomain_Registry) {
+            $wp_textdomain_registry->set_custom_path(self::TEXT_DOMAIN, $dir);
+        }
+
+        $mo = $dir . '/' . self::TEXT_DOMAIN . '-' . $locale . '.mo';
+        if (!is_readable($mo)) {
+            return;
+        }
+
+        $loader = static function () use ($mo) {
+            load_textdomain(self::TEXT_DOMAIN, $mo);
+        };
+
+        if (did_action('after_setup_theme')) {
+            $loader();
+        } else {
+            add_action('after_setup_theme', $loader, 5);
         }
     }
 
@@ -145,7 +186,8 @@ class UserCreditsExtension extends AbstractExtension
             'restUrl' => esc_url_raw(rest_url(CreditApiController::NAMESPACE)),
             'nonce'   => wp_create_nonce('wp_rest'),
             'i18n'    => [
-                'error' => __('Đã xảy ra lỗi, vui lòng thử lại.', 'jankx'),
+                'error' => __('Đã xảy ra lỗi, vui lòng thử lại.', 'jankx_user_credit'),
+                'requestFailed' => __('Yêu cầu thất bại. Vui lòng thử lại.', 'jankx_user_credit'),
             ],
         ]);
     }

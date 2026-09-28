@@ -6,7 +6,7 @@
     "category": "jankx",
     "icon": "list-view",
     "description": "Credit transaction history table.",
-    "textdomain": "jankx",
+    "textdomain": "jankx_user_credit",
     "editorScript": "file:./build/index.tsx.js",
     "parent": ["jankx/account-tab-credits"],
     "attributes": {

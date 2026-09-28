@@ -182,10 +182,12 @@ class OrderRewardIntegration
 
         $orderNumber = method_exists($order, 'getOrderNumber') ? (string) $order->getOrderNumber() : '';
 
-        $note = $orderNumber ? sprintf(__('Đơn hàng %s', 'jankx'), $orderNumber) : '';
+        /* translators: %s: order number. */
+        $note = $orderNumber ? sprintf(__('Đơn hàng %s', 'jankx_user_credit'), $orderNumber) : '';
         $title = $orderNumber
-            ? sprintf(__('Thưởng xu đơn hàng %s', 'jankx'), $orderNumber)
-            : __('Thưởng xu khi hoàn thành đơn hàng', 'jankx');
+            /* translators: %s: order number. */
+            ? sprintf(__('Thưởng xu đơn hàng %s', 'jankx_user_credit'), $orderNumber)
+            : __('Thưởng xu khi hoàn thành đơn hàng', 'jankx_user_credit');
 
         try {
             $transaction = $this->account()->transact(

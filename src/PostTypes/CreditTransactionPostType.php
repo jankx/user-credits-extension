@@ -27,18 +27,18 @@ class CreditTransactionPostType
     public function register_post_type(): void
     {
         $labels = [
-            'name'                  => __('Giao dịch', 'jankx'),
-            'singular_name'         => __('Giao dịch', 'jankx'),
-            'menu_name'             => __('Giao dịch tín dụng', 'jankx'),
-            'add_new'               => __('Thêm mới', 'jankx'),
-            'add_new_item'          => __('Thêm giao dịch mới', 'jankx'),
-            'edit_item'             => __('Chỉnh sửa giao dịch', 'jankx'),
-            'new_item'              => __('Giao dịch mới', 'jankx'),
-            'view_item'             => __('Xem giao dịch', 'jankx'),
-            'search_items'          => __('Tìm giao dịch', 'jankx'),
-            'not_found'             => __('Không tìm thấy giao dịch', 'jankx'),
-            'not_found_in_trash'    => __('Không có giao dịch nào trong thùng rác', 'jankx'),
-            'all_items'             => __('Tất cả giao dịch', 'jankx'),
+            'name'                  => __('Giao dịch', 'jankx_user_credit'),
+            'singular_name'         => __('Giao dịch', 'jankx_user_credit'),
+            'menu_name'             => __('Giao dịch tín dụng', 'jankx_user_credit'),
+            'add_new'               => __('Thêm mới', 'jankx_user_credit'),
+            'add_new_item'          => __('Thêm giao dịch mới', 'jankx_user_credit'),
+            'edit_item'             => __('Chỉnh sửa giao dịch', 'jankx_user_credit'),
+            'new_item'              => __('Giao dịch mới', 'jankx_user_credit'),
+            'view_item'             => __('Xem giao dịch', 'jankx_user_credit'),
+            'search_items'          => __('Tìm giao dịch', 'jankx_user_credit'),
+            'not_found'             => __('Không tìm thấy giao dịch', 'jankx_user_credit'),
+            'not_found_in_trash'    => __('Không có giao dịch nào trong thùng rác', 'jankx_user_credit'),
+            'all_items'             => __('Tất cả giao dịch', 'jankx_user_credit'),
         ];
 
         register_post_type(self::POST_TYPE, [
@@ -62,11 +62,11 @@ class CreditTransactionPostType
         $newColumns = [];
         $newColumns['cb'] = $columns['cb'];
         $newColumns['title'] = $columns['title'];
-        $newColumns['transaction_type'] = __('Loại giao dịch', 'jankx');
-        $newColumns['credit_wallet'] = __('Loại tín dụng', 'jankx');
-        $newColumns['amount'] = __('Số tiền', 'jankx');
-        $newColumns['balance_after'] = __('Số dư sau', 'jankx');
-        $newColumns['user'] = __('Người dùng', 'jankx');
+        $newColumns['transaction_type'] = __('Loại giao dịch', 'jankx_user_credit');
+        $newColumns['credit_wallet'] = __('Loại tín dụng', 'jankx_user_credit');
+        $newColumns['amount'] = __('Số tiền', 'jankx_user_credit');
+        $newColumns['balance_after'] = __('Số dư sau', 'jankx_user_credit');
+        $newColumns['user'] = __('Người dùng', 'jankx_user_credit');
         $newColumns['date'] = $columns['date'];
 
         return $newColumns;
@@ -117,7 +117,7 @@ class CreditTransactionPostType
                             esc_html($user->display_name)
                         );
                     } else {
-                        echo esc_html__('Không xác định', 'jankx');
+                        echo esc_html__('Không xác định', 'jankx_user_credit');
                     }
                 }
                 break;

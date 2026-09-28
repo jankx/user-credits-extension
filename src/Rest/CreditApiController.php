@@ -203,12 +203,13 @@ class CreditApiController
         if (!$user) {
             return new \WP_REST_Response([
                 'success' => false,
-                'message' => __('Không tìm thấy người dùng.', 'jankx'),
+                'message' => __('Không tìm thấy người dùng.', 'jankx_user_credit'),
             ], 404);
         }
 
         $title = sprintf(
-            __('Nạp %s cho %s', 'jankx'),
+            /* translators: 1: transaction note or formatted amount, 2: user display name. */
+            __('Nạp %1$s cho %2$s', 'jankx_user_credit'),
             $note !== '' ? $note : $type->format($amount),
             $user->display_name
         );
@@ -229,7 +230,8 @@ class CreditApiController
             'balance'        => $transaction->getBalanceAfter(),
             'added'          => $amount,
             'message'        => sprintf(
-                __('Đã nạp %s cho %s.', 'jankx'),
+                /* translators: 1: formatted amount, 2: user display name. */
+                __('Đã nạp %1$s cho %2$s.', 'jankx_user_credit'),
                 $type->format($amount),
                 $user->display_name
             ),
@@ -247,12 +249,13 @@ class CreditApiController
         if (!$user) {
             return new \WP_REST_Response([
                 'success' => false,
-                'message' => __('Không tìm thấy người dùng.', 'jankx'),
+                'message' => __('Không tìm thấy người dùng.', 'jankx_user_credit'),
             ], 404);
         }
 
         $title = sprintf(
-            __('Trừ %s từ %s', 'jankx'),
+            /* translators: 1: transaction note or formatted amount, 2: user display name. */
+            __('Trừ %1$s từ %2$s', 'jankx_user_credit'),
             $note !== '' ? $note : $type->format($amount),
             $user->display_name
         );
@@ -263,7 +266,8 @@ class CreditApiController
             return new \WP_REST_Response([
                 'success' => false,
                 'message' => sprintf(
-                    __('Số dư không đủ. Số dư hiện tại: %s', 'jankx'),
+                    /* translators: %s: formatted remaining balance. */
+                    __('Số dư không đủ. Số dư hiện tại: %s', 'jankx_user_credit'),
                     $type->format($exception->getBalance())
                 ),
             ], 400);
@@ -281,7 +285,8 @@ class CreditApiController
             'balance'        => $transaction->getBalanceAfter(),
             'deducted'       => $amount,
             'message'        => sprintf(
-                __('Đã trừ %s từ %s.', 'jankx'),
+                /* translators: 1: amount, 2: user display name. */
+                __('Đã trừ %1$s từ %2$s.', 'jankx_user_credit'),
                 $type->format($amount),
                 $user->display_name
             ),
@@ -297,7 +302,7 @@ class CreditApiController
         if (!current_user_can('manage_options') && $userId !== get_current_user_id()) {
             return new \WP_REST_Response([
                 'success' => false,
-                'message' => __('Không có quyền xem lịch sử giao dịch này.', 'jankx'),
+                'message' => __('Không có quyền xem lịch sử giao dịch này.', 'jankx_user_credit'),
             ], 403);
         }
 

@@ -14,7 +14,7 @@
             body: JSON.stringify(body || {})
         }).then(function (res) {
             return res.json().catch(function () {
-                return { success: false, message: CFG.i18n.error || 'Request failed.' };
+                return { success: false, message: CFG.i18n.requestFailed || CFG.i18n.error || 'Request failed.' };
             });
         });
     }
@@ -95,7 +95,7 @@
             updateTotals(res);
         }).catch(function () {
             syncToggles(!use, false);
-            showMessage(CFG.i18n.error || 'Request failed.', true);
+            showMessage(CFG.i18n.requestFailed || CFG.i18n.error || 'Request failed.', true);
         });
     });
 })();
