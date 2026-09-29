@@ -92,6 +92,9 @@ class UserCreditsExtension extends AbstractExtension
         // Register sub-page with My Account
         add_action('jankx/my_account/register_sub_pages', [$this, 'registerAccountSubPage']);
 
+        // Show the current balance next to the "Xu của bạn" account menu item.
+        add_filter('jankx/my-account/menu-item/info', [$this, 'renderAccountMenuInfo'], 10, 3);
+
         // Frontend assets for the cart & checkout credit payment UI.
         add_action('wp_enqueue_scripts', [$this, 'enqueuePaymentAssets']);
 
@@ -272,5 +275,26 @@ class UserCreditsExtension extends AbstractExtension
     public function registerAccountSubPage(): void
     {
         \Jankx\Extensions\MyAccount\MyAccountExtension::registerSubPageClass(new \Jankx\Extensions\UserCredits\MyAccount\CreditsSubPage());
+    }
+
+    /**
+     * Show the current credits balance on the right side of the credits
+     * account menu item (e.g. "10.000 XU").
+     *
+     * @param string $info
+     * @param string $slug
+     * @param array  $attributes
+     */
+    public function renderAccountMenuInfo(string $info, string $slug, array $attributes): string
+    {
+        if ($slug !== 'credits' || !is_user_logged_in()) {
+            return $info;
+        }
+
+        $account = CreditManager::instance()->account();
+        $type = $account->resolveType();
+        $balance = $account->getBalance(get_current_user_id());
+
+        return esc_html($type->format($balance));
     }
 }
