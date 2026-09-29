@@ -128,14 +128,74 @@ class UserCreditMetaBoxes
             ? wp_unslash($_POST['user_credits_balance'])
             : [];
 
+        $adminUser = wp_get_current_user();
+        $adminName = ($adminUser && $adminUser->exists())
+            ? ($adminUser->display_name ?: $adminUser->user_login)
+            : __('Admin', 'jankx_user_credit');
+
         foreach ($this->registry->all() as $type) {
             if (!array_key_exists($type->getId(), $posted)) {
                 continue;
             }
 
-            $value = sanitize_text_field((string) $posted[$type->getId()]);
+            $rawValue = sanitize_text_field((string) $posted[$type->getId()]);
+            $newBalance = is_numeric($rawValue) ? (float) $rawValue : 0.0;
+            $oldBalance = $this->account->getBalance($userId, $type->getId());
 
-            $this->account->setBalance($userId, is_numeric($value) ? (float) $value : 0.0, $type->getId());
+            $diff = $newBalance - $oldBalance;
+            if (abs($diff) < 0.0001) {
+                continue;
+            }
+
+            $isCoin = ($type->getId() === 'coin' || $type->getId() === CreditType::DEFAULT_ID);
+            $formattedAmount = number_format(abs($diff), 0, ',', '.');
+
+            if ($diff > 0) {
+                $message = $isCoin
+                    ? sprintf(__('%1$s đã tặng %2$s coin cho bạn', 'jankx_user_credit'), $adminName, $formattedAmount)
+                    : sprintf(__('%1$s đã tặng %2$s %3$s cho bạn', 'jankx_user_credit'), $adminName, $formattedAmount, $type->getLabel());
+
+                $this->account->deposit($userId, $diff, $message, $type->getId(), $message);
+
+                if (class_exists('\Jankx\Extensions\NotificationSystem\NotificationService')) {
+                    \Jankx\Extensions\NotificationSystem\NotificationService::send(
+                        $userId,
+                        'credit.deposit',
+                        $isCoin
+                            ? sprintf(__('Bạn nhận được %s coin', 'jankx_user_credit'), $formattedAmount)
+                            : sprintf(__('Bạn nhận được %s %s', 'jankx_user_credit'), $formattedAmount, $type->getLabel()),
+                        $message,
+                        [
+                            'type'   => $type->getId(),
+                            'amount' => $diff,
+                            'by'     => $adminName,
+                        ]
+                    );
+                }
+            } else {
+                $deductAmount = abs($diff);
+                $message = $isCoin
+                    ? sprintf(__('%1$s đã trừ %2$s coin từ tài khoản của bạn', 'jankx_user_credit'), $adminName, $formattedAmount)
+                    : sprintf(__('%1$s đã trừ %2$s %3$s từ tài khoản của bạn', 'jankx_user_credit'), $adminName, $formattedAmount, $type->getLabel());
+
+                $this->account->withdraw($userId, $deductAmount, $message, $type->getId(), $message);
+
+                if (class_exists('\Jankx\Extensions\NotificationSystem\NotificationService')) {
+                    \Jankx\Extensions\NotificationSystem\NotificationService::send(
+                        $userId,
+                        'credit.deduct',
+                        $isCoin
+                            ? sprintf(__('Tài khoản bị trừ %s coin', 'jankx_user_credit'), $formattedAmount)
+                            : sprintf(__('Tài khoản bị trừ %s %s', 'jankx_user_credit'), $formattedAmount, $type->getLabel()),
+                        $message,
+                        [
+                            'type'   => $type->getId(),
+                            'amount' => $deductAmount,
+                            'by'     => $adminName,
+                        ]
+                    );
+                }
+            }
         }
     }
 
@@ -146,6 +206,14 @@ class UserCreditMetaBoxes
 
     protected function describe(CreditTransaction $transaction): string
     {
+        if ($transaction->getNote() !== '') {
+            return $transaction->getNote();
+        }
+
+        if ($transaction->getTitle() !== '') {
+            return $transaction->getTitle();
+        }
+
         $type = $this->resolveType($transaction->getWalletId());
 
         return $type

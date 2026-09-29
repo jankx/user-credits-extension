@@ -196,7 +196,7 @@ class CreditApiController
     {
         $userId = (int) $request->get_param('user_id');
         $amount = (float) $request->get_param('amount');
-        $note = (string) ($request->get_param('note') ?: '');
+        $inputNote = (string) ($request->get_param('note') ?: '');
         $type = $this->resolveType($request);
 
         $user = get_userdata($userId);
@@ -207,15 +207,39 @@ class CreditApiController
             ], 404);
         }
 
-        $title = sprintf(
-            /* translators: 1: transaction note or formatted amount, 2: user display name. */
-            __('Nạp %1$s cho %2$s', 'jankx_user_credit'),
-            $note !== '' ? $note : $type->format($amount),
-            $user->display_name
-        );
+        $adminUser = wp_get_current_user();
+        $adminName = ($adminUser && $adminUser->exists())
+            ? ($adminUser->display_name ?: $adminUser->user_login)
+            : __('Admin', 'jankx_user_credit');
+
+        $isCoin = ($type->getId() === 'coin' || $type->getId() === CreditType::DEFAULT_ID);
+        $formattedAmount = number_format($amount, 0, ',', '.');
+
+        $defaultNote = $isCoin
+            ? sprintf(__('%1$s đã tặng %2$s coin cho bạn', 'jankx_user_credit'), $adminName, $formattedAmount)
+            : sprintf(__('%1$s đã tặng %2$s %3$s cho bạn', 'jankx_user_credit'), $adminName, $formattedAmount, $type->getLabel());
+
+        $note = $inputNote !== '' ? $inputNote : $defaultNote;
+        $title = $note;
 
         try {
             $transaction = $this->account->deposit($userId, $amount, $note, $type->getId(), $title);
+
+            if (class_exists('\Jankx\Extensions\NotificationSystem\NotificationService')) {
+                \Jankx\Extensions\NotificationSystem\NotificationService::send(
+                    $userId,
+                    'credit.deposit',
+                    $isCoin
+                        ? sprintf(__('Bạn nhận được %s coin', 'jankx_user_credit'), $formattedAmount)
+                        : sprintf(__('Bạn nhận được %s %s', 'jankx_user_credit'), $formattedAmount, $type->getLabel()),
+                    $note,
+                    [
+                        'type'   => $type->getId(),
+                        'amount' => $amount,
+                        'by'     => $adminName,
+                    ]
+                );
+            }
         } catch (InvalidArgumentException $exception) {
             return new \WP_REST_Response([
                 'success' => false,
@@ -242,7 +266,7 @@ class CreditApiController
     {
         $userId = (int) $request->get_param('user_id');
         $amount = (float) $request->get_param('amount');
-        $note = (string) ($request->get_param('note') ?: '');
+        $inputNote = (string) ($request->get_param('note') ?: '');
         $type = $this->resolveType($request);
 
         $user = get_userdata($userId);
@@ -253,15 +277,39 @@ class CreditApiController
             ], 404);
         }
 
-        $title = sprintf(
-            /* translators: 1: transaction note or formatted amount, 2: user display name. */
-            __('Trừ %1$s từ %2$s', 'jankx_user_credit'),
-            $note !== '' ? $note : $type->format($amount),
-            $user->display_name
-        );
+        $adminUser = wp_get_current_user();
+        $adminName = ($adminUser && $adminUser->exists())
+            ? ($adminUser->display_name ?: $adminUser->user_login)
+            : __('Admin', 'jankx_user_credit');
+
+        $isCoin = ($type->getId() === 'coin' || $type->getId() === CreditType::DEFAULT_ID);
+        $formattedAmount = number_format($amount, 0, ',', '.');
+
+        $defaultNote = $isCoin
+            ? sprintf(__('%1$s đã trừ %2$s coin từ tài khoản của bạn', 'jankx_user_credit'), $adminName, $formattedAmount)
+            : sprintf(__('%1$s đã trừ %2$s %3$s từ tài khoản của bạn', 'jankx_user_credit'), $adminName, $formattedAmount, $type->getLabel());
+
+        $note = $inputNote !== '' ? $inputNote : $defaultNote;
+        $title = $note;
 
         try {
             $transaction = $this->account->withdraw($userId, $amount, $note, $type->getId(), $title);
+
+            if (class_exists('\Jankx\Extensions\NotificationSystem\NotificationService')) {
+                \Jankx\Extensions\NotificationSystem\NotificationService::send(
+                    $userId,
+                    'credit.deduct',
+                    $isCoin
+                        ? sprintf(__('Tài khoản bị trừ %s coin', 'jankx_user_credit'), $formattedAmount)
+                        : sprintf(__('Tài khoản bị trừ %s %s', 'jankx_user_credit'), $formattedAmount, $type->getLabel()),
+                    $note,
+                    [
+                        'type'   => $type->getId(),
+                        'amount' => $amount,
+                        'by'     => $adminName,
+                    ]
+                );
+            }
         } catch (InsufficientCreditBalanceException $exception) {
             return new \WP_REST_Response([
                 'success' => false,
