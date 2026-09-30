@@ -48,7 +48,7 @@ class CreditTransactionPostType
             'show_in_menu'      => true,
             'show_in_rest'      => true,
             'menu_icon'         => 'dashicons-money-alt',
-            'supports'          => ['title', 'editor', 'custom-fields'],
+            'supports'          => ['title', 'editor'],
             'capability_type'   => 'post',
             'map_meta_cap'      => true,
             'capabilities'      => [
