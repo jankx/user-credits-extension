@@ -186,7 +186,7 @@ class UserCreditsExtension extends AbstractExtension
         );
 
         wp_localize_script('jankx-credits-payment', 'jankxCreditsPayment', [
-            'restUrl' => esc_url_raw(rest_url(CreditApiController::NAMESPACE)),
+            'restUrl' => esc_url_raw(rest_url(CreditApiController::NAMESPACE . '/')),
             'nonce'   => wp_create_nonce('wp_rest'),
             'i18n'    => [
                 'error' => __('Đã xảy ra lỗi, vui lòng thử lại.', 'jankx_user_credit'),
