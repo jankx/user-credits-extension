@@ -71,6 +71,9 @@
         document.querySelectorAll('.jankx-subtotal-row').forEach(function (row) {
             row.hidden = (creditDiscount + couponDiscount) <= 0;
         });
+
+        setText('.jankx-btn-total', cart.formatted_total);
+        document.dispatchEvent(new CustomEvent('jankx:cart:updated'));
     }
 
     document.addEventListener('change', function (event) {
